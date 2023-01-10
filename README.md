@@ -1,3 +1,5 @@
+# ThusPi
+
 Hi👋
 
 ThusPi is a moden smarthome system for the Raspberry Pi, that's still highly in development.
