@@ -80,7 +80,6 @@ app.listen(webPort, () => {
 });
 
 require('@lib/scripts/setupAppStartListener')();
-require('@lib/scripts/setupAppEndListener')();
 
 setTimeout(() => {
     require('@lib/scripts/setupRunFlowsJob')();

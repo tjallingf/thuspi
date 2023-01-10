@@ -1,50 +1,50 @@
 {
     "current": {
-        "icon": "fal.a",
+        "icon": "a",
         "unit": "A"
     },
     "energy": {
-        "icon": "fal.e",
+        "icon": "e",
         "unit": "kJ"
     },
     "height": {
-        "icon": "fal.ruler-vertical",
+        "icon": "ruler-vertical",
         "unit": "m"
     },
     "humidity": {
-        "icon": "fal.droplet-percent",
+        "icon": "droplet-percent",
         "unit": "%"
     },
     "power": {
-        "icon": "fal.p",
+        "icon": "p",
         "unit": "kW"
     },
     "state": {
-        "icon": "fal.circle-dot",
+        "icon": "circle-dot",
         "unit": ""
     },
     "temperature": {
-        "icon": "fal.temperature-half",
+        "icon": "temperature-half",
         "unit": "°C"
     },
     "time": {
-        "icon": "fal.clock",
+        "icon": "clock",
         "unit": ""
     },
     "value": {
-        "icon": "fal.hashtag",
+        "icon": "hashtag",
         "unit": ""
     },
     "voltage": {
-        "icon": "fal.v",
+        "icon": "v",
         "unit": "V"
     },
     "weight": {
-        "icon": "fal.weight-hanging",
+        "icon": "weight-hanging",
         "unit": "kg"
     },
     "width": {
-        "icon": "fal.ruler-horizontal",
+        "icon": "ruler-horizontal",
         "unit": "m"
     },
     "surface": {
@@ -52,7 +52,7 @@
         "unit": "m²"
     },
     "volume": {
-        "icon": "fal.cube",
+        "icon": "cube",
         "unit": "m³"
     }
 }
