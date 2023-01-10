@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "paths": {
+            "@controllers/*": ["lib/controllers/*"],
+            "@models/*": ["lib/models/*"],
+            "@managers/*": ["lib/managers/*"],
+            "@scripts/*": ["lib/scripts/*"],
+            "@lib/*": ["lib/*"],
+            "@ext/*": ["storage/extensions/*"]
+        }
+    }
+}

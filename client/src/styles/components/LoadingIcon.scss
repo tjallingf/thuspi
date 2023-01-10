@@ -1,0 +1,85 @@
+@import '../variables.scss';
+
+.LoadingIcon {
+    --LoadingIcon-number-of-colors: 5;
+    --LoadingIcon-stroke-dash-max: 1460;
+    --LoadingIcon-fade-animation-duration: calc(var(--LoadingIcon-fade-animation-delay) * 2);
+    opacity: 0;
+    animation: LoadingIconColor calc(var(--LoadingIcon-color-animation-duration) * var(--LoadingIcon-number-of-colors)) linear infinite, 
+               LoadingIconFade var(--LoadingIcon-fade-animation-duration) var(--LoadingIcon-fade-animation-delay) forwards;
+    display: flex;
+    flex-direction: column;
+
+    &.LoadingIcon--center {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        position: absolute;
+        z-index: 20;
+    }
+
+    .LoadingIcon__label {
+        margin-top: 0.5rem;
+        white-space: nowrap;
+    }
+
+    svg {
+        display: block;
+        height: calc(7 / 6 * var(--Icon-size));
+        width: calc(7 / 6 * var(--Icon-size));
+        min-height: calc(7 / 6 * var(--Icon-size));
+        min-width: calc(7 / 6 * var(--Icon-size));
+
+        >  path {
+            fill: transparent;
+            stroke: var(--LoadingIcon-stroke);
+            stroke-dasharray: var(--LoadingIcon-stroke-dash-max);
+            transform-origin: center;
+            animation: LoadingIconSpin var(--LoadingIcon-color-animation-duration) cubic-bezier(0.42, 0.3, 0.58, 0.7) infinite;
+        }
+    }
+}
+
+@keyframes LoadingIconSpin {
+    0% {
+        transform: rotate(var(--LoadingIcon-rotate-start));
+        stroke-dashoffset: var(--LoadingIcon-stroke-dash-max);
+    } 
+
+    50% {
+        transform: rotate(calc(360deg + var(--LoadingIcon-rotate-start)));
+        stroke-dashoffset: var(--LoadingIcon-stroke-dash-min);
+    }
+
+    100% {
+        transform: rotate(calc(1080deg + var(--LoadingIcon-rotate-start)));
+        stroke-dashoffset: var(--LoadingIcon-stroke-dash-max);
+    }
+}
+
+@keyframes LoadingIconColor {
+    0%     { --LoadingIcon-stroke: var(--LoadingIcon-stroke-1); } 
+    19.99% { --LoadingIcon-stroke: var(--LoadingIcon-stroke-1); }
+
+    20%    { --LoadingIcon-stroke: var(--LoadingIcon-stroke-2); }
+    39.99% { --LoadingIcon-stroke: var(--LoadingIcon-stroke-2); }
+
+    40%    { --LoadingIcon-stroke: var(--LoadingIcon-stroke-3); }
+    59.99% { --LoadingIcon-stroke: var(--LoadingIcon-stroke-3); }
+
+    60%    { --LoadingIcon-stroke: var(--LoadingIcon-stroke-4); }
+    79.99% { --LoadingIcon-stroke: var(--LoadingIcon-stroke-4); }
+
+    80%    { --LoadingIcon-stroke: var(--LoadingIcon-stroke-5); }
+    99.99% { --LoadingIcon-stroke: var(--LoadingIcon-stroke-5); }
+}
+
+@keyframes LoadingIconFade {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

@@ -1,0 +1,47 @@
+// Animation durations
+$adr-xs: 125ms;
+$adr-sm: 250ms;
+$adr-md: 500ms;
+$adr-lg: 750ms;
+
+// Transition presets
+$trst-opacity: opacity $adr-xs ease-in-out;
+$trst-transform: transform $adr-xs ease-in-out;
+$trst-margin: margin $adr-xs ease-in-out;
+$trst-size: max-width $adr-xs ease-in-out, max-height $adr-xs ease-in-out;
+$trst-background: background $adr-xs ease-in-out;
+
+$fs-icon: (
+    text: 0.9em,
+    xs:   0.75rem,
+    sm:   1rem,
+    md:   1.25rem,
+    lg:   1.5rem,
+    xl:   1.65rem,
+    xxl:  1.75rem
+);
+
+// Text Colors
+$text-colors: (
+    "primary": "text-primary",
+    "secondary": "text-secondary",
+    "muted": "text-muted",
+    "blue": "blue",
+    "green": "green",
+    "orange": "orange",
+    "red": "red",
+    "yellow": "yellow"
+);
+
+// Spacers
+$spacer-1: 0.25rem;
+$spacer-2: 0.5rem;
+$spacer-3: 0.75rem;
+$spacer-4: 1rem;
+$spacer-5: 1.125rem;
+$spacer-6: 1.25rem;
+$spacer-7: 1.5rem;
+
+// Breakpoints
+$breakpoint-vertical-navbar: md;
+$breakpoint-inline-contextmenu: sm;

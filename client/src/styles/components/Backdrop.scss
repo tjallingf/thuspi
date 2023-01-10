@@ -1,0 +1,31 @@
+@import '../variables';
+@import '../bootstrap/mixins/breakpoints';
+
+@mixin _Backdrop--visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.Backdrop {
+    content: '';
+    z-index: 600;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--Backdrop-background);
+    transition: $trst-opacity;
+
+    &.Backdrop--visible_Popup {
+        @include _Backdrop--visible;
+    }
+
+    &.Backdrop--visible_ContextMenu {
+        @media(max-width: breakpoint-max($breakpoint-inline-contextmenu)) {
+            @include _Backdrop--visible;
+        }
+    }
+}

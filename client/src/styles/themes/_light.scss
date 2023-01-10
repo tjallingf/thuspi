@@ -1,0 +1,225 @@
+@use "sass:list"; 
+
+html {
+    // ------------------------------ //
+    //             COLORS             //
+    // ------------------------------ //
+
+    // List of all colors with their hue value, saturation value, and lightness modifier
+    $colors: (
+        'primary': (200, 19%, 70%),
+        'blue': (210, 79%, 5%),
+        'green': (92, 48%, 0%),
+        'orange': (30, 100%, 3%),
+        'red': (0, 65%, 10%),
+        'yellow': (38, 100%, 7%),
+        'violet': (282, 68%, 0%),
+        'magenta': (336, 78%, 0%),
+        'cyan': (186, 100%, 0%),
+        'purple': (258, 58%, 0%),
+        'brown': (14, 26%, 0%)
+    );
+
+    @each $name, $hue-sat-lgt in $colors {
+        --theme-#{$name}-hs: #{list.nth($hue-sat-lgt, 1)}, #{list.nth($hue-sat-lgt, 2)};
+        --theme-#{$name}-lm: #{list.nth($hue-sat-lgt, 3)};
+
+        @for $i from 1 through 9 {
+            --#{$name}-#{$i*100}: hsl(var(--theme-#{$name}-hs), calc(100%/15*#{11 - $i} + var(--theme-#{$name}-lm)));
+        };
+    };
+
+    // ------------------------------ //
+    //           TEXT COLORS          //
+    // ------------------------------ //
+
+    --text-primary: hsl(0, 0%, 15%);
+	--text-secondary: hsl(0, 0%, 100%);
+	--text-muted: hsl(0, 0%, 40%);
+
+    // ------------------------------ //
+    //           OTHER COLORS         //
+    // ------------------------------ //
+    
+    --clr-selection: hsla(0, 0%, 100%, 0.1);
+    --clr-box-shadow: hsla(0, 0%, 0%, 0.05);
+    --clr-transparent: transparent;
+
+    // ------------------------------ //
+    //          BORDER RADIUS         //
+    // ------------------------------ //
+
+    --border-radius-lg: 0.75rem;
+    --border-radius-md: 0.5rem;
+    --border-radius-sm: 0.35rem;
+    --rad-pill: 10000px;
+    --rad-circle: 50%;
+
+    // ------------------------------ //
+    //          BOX SHADOWS           //
+    // ------------------------------ //
+
+    --bxs-md: 0 0.25rem 0.5rem 0 var(--clr-box-shadow);
+    --bxs-md-alt: 0 -0.25rem 0.5rem 0 var(--clr-box-shadow);
+
+    // ------------------------------ //
+    //          FONT FAMILIES         //
+    // ------------------------------ //
+
+    --heading-font-family: 'Inter', sans-serif;
+    --normal-font-family: 'Inter', sans-serif;
+    --monospace-font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace, sans-serif;
+
+    // ------------------------------ //
+    //           COMPONENTS           //
+    // ------------------------------ //
+    
+    // App
+    --App-background: var(--primary-900);
+    --App-color: var(--text-primary);
+    --App-font-family: var(--normal-font-family);
+    --App-margin: 0.5rem;
+
+    --Backdrop-background: hsla(0, 0%, 0%, 0.8);
+
+    // modal
+    --bkg-modal: var(--bkg-tile);
+    --rad-modal: var(--rad-tile);
+    --pdg-modal: var(--pdg-tile);
+
+    // Topbar
+    --Topbar-background: var(--primary-800);
+    --Topbar-border: none;
+    --Topbar-box-shadow: var(--bxs-md);
+    --Topbar-border-radius: 0;
+    --Topbar-height: 3.5rem;
+
+    // Topbar (horizontal)
+    --Topbar--horizontal-background: var(--primary-900);
+    --Topbar--horizontal-border: 1.5px solid var(--primary-800);
+    --Topbar--horizontal-box-shadow: none;
+
+    // Navbar
+    --Navbar-background: var(--primary-800);
+    --Navbar-border: none;
+    --Navbar-box-shadow: var(--bxs-md-alt);
+    --Navbar-border-radius: 0;
+    --Navbar-height: 3.625rem;
+    --Navbar-width: 3.5rem;
+    --Navbar__button-background: transparent;
+    --Navbar__button--active-background: transparent;
+    --Navbar__button-color: var(--text-primary);
+    --Navbar__button--active-color: var(--blue-500);
+
+    // Navbar (horizontal)
+    --Navbar--horizontal-background: var(--primary-900);
+    --Navbar--horizontal-border: 1.5px solid var(--primary-800);
+    --Navbar--horizontal-box-shadow: none;
+
+    // Input
+    --InputSlider__thumb-background: var(--blue-500);
+    --InputSlider__thumb-border-radius: var(--border-radius-sm);
+    --InputSlider__track-background: var(--primary-900);
+    --InputSlider__track-border-radius: var(--border-radius-md);
+    --InputSlider__tooltip-background: var(--primary-600);
+    --InputSlider__tooltip-border-radius: var(--border-radius-lg);
+    
+    --InputSwitch__thumb-background: var(--primary-700);
+    --InputSwitch__thumb--active-background: var(--primary-800);
+    --InputSwitch__thumb-border-radius: var(--border-radius-sm);
+    --InputSwitch__track-background: var(--primary-900);
+    --InputSwitch__track--active-background: var(--green-500);
+    --InputSwitch__track-width: 2.75rem;
+    --InputSwitch__track-padding: 0.15rem;
+    --InputSwitch__thumb-height: 1.15rem;
+    --InputSwitch__thumb-width: var(--InputSwitch__thumb-height);
+    --InputSwitch__track-border-radius: var(--border-radius-md);
+
+    --InputText-background: var(--primary-900);
+    --InputText-border: none;
+    --InputText-box-shadow: none;
+    --InputText-border-radius: var(--border-radius-md);
+    --InputText-color: var(--text-primary);
+    --InputText-padding: 0.5rem 0.75rem;
+    
+    --bkg-input-time: var(--primary-900);
+    --rad-input-time: var(--border-radius-lg);
+    --brd-input-time: none;
+    --clr-input-time: var(--text-primary);
+
+    // ContextMenu--inline
+    --ContextMenu--inline-background: var(--primary-900);
+    --ContextMenu--inline-border-radius: var(--border-radius-lg);
+    --ContextMenu--inline-border: 1px solid var(--primary-800);
+    --ContextMenu--inline-box-shadow: none;
+    --ContextMenu--inline-padding: 0.25rem;
+    --ContextMenu--inline-margin: 0.5rem;
+    --ContextMenu--inline__item-accent: var(--primary-900);
+    --ContextMenu--inline__item--hover-accent: var(--primary-800);
+    --ContextMenu--inline__item--active-accent: var(--primary-800);
+
+    // ContextMenu
+    --ContextMenu-background: var(--primary-800);
+    --ContextMenu-border-radius: var(--border-radius-lg);
+    --ContextMenu-border: none;
+    --ContextMenu-box-shadow: var(--bxs-md-alt);
+    --ContextMenu-padding: 0.25rem;
+    --ContextMenu__item-accent: transparent;
+    --ContextMenu__item--hover-accent: var(--primary-700);
+    --ContextMenu__item--active-accent: var(--primary-700);
+
+    // Tile
+    --Tile-background: var(--primary-800);
+    --Tile-border: none;
+    --Tile-box-shadow: none;
+    --Tile-padding: 0.5rem;
+    --Tile-border-radius: var(--border-radius-lg);
+
+    // Dropdown
+    --bkg-dropdown: var(--clr-primary-500);
+    --rad-dropdown: var(--border-radius-lg);
+    --brd-dropdown: 1px solid var(--blue-500);
+    --clr-dropdown: var(--text-primary);
+
+    // Skeleton
+    --skeleton-node-background: var(--clr-primary-600);
+
+    // Button
+    --Button--size-xs-padding: 0.125rem;
+    --Button--size-sm-padding: 0.25rem;
+    --Button--size-md-padding: 0.5rem;
+    --Button--size-lg-padding: 0.75rem;
+    --Button--size-xs-border-radius: var(--border-radius-md);
+    --Button--size-sm-border-radius: var(--border-radius-md);
+    --Button--size-md-border-radius: var(--border-radius-lg);
+    --Button--size-lg-border-radius: var(--border-radius-lg);
+    --Button--link-padding: 0.25rem;
+    --Button--chip-border-radius: var(--border-radius-md);
+    --Button--chip-padding: 0.25rem 0.5rem;
+
+    // LoadingIcon
+    --LoadingIcon-color-animation-duration: 2000ms;
+    --LoadingIcon-fade-animation-delay: 500ms;
+    --LoadingIcon-stroke-1: var(--blue-500);
+    --LoadingIcon-stroke-2: var(--green-500);
+    --LoadingIcon-stroke-3: var(--yellow-500);
+    --LoadingIcon-stroke-4: var(--red-500);
+    --LoadingIcon-stroke-5: var(--purple-500);
+    --LoadingIcon-stroke-dash-max: 1450;
+    --LoadingIcon-stroke-dash-min: 250;
+    --LoadingIcon-rotate-start: 270deg;
+
+    // Font sizes
+    --fs-h1: 1.35rem;
+    --fs-h2: 1.25rem;
+    --fs-h3: 1.125rem;
+    --fs-h4: 0.9rem;
+    --fs-h5: 0.8rem;
+    --fs-h6: 0.7rem;
+    --fs-sm: 0.875rem;
+    --fs-xs: 0.75rem;
+    --fs-xxs: 0.625rem;
+    
+    // Color Scheme
+    color-scheme: dark;
+}

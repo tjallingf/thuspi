@@ -1,0 +1,13 @@
+.Modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-50% + var(--Modal-position-left)), calc(-50% + var(--Modal-position-top)));
+    opacity: 0;
+    pointer-events: none;
+
+    &.Modal--visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

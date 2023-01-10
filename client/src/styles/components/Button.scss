@@ -1,0 +1,105 @@
+@import '../variables.scss';
+
+.Button {
+    --_Button-accent: var(--Button-accent);
+    --_Button-color: var(--Button-color);
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    column-gap: var(--bs-gutter-x, $spacer-2);
+    flex-wrap: nowrap;
+    padding: var(--Button-padding);
+    outline: none;
+    border: none;
+    z-index: 1;
+    position: relative;
+    overflow: visible;
+    cursor: pointer;
+    border-radius: var(--Button-border-radius);
+    white-space: nowrap;
+
+    // &::after {
+    //     content: '';
+    //     z-index: -1;
+    //     position: absolute;
+    //     top: 50%;
+    //     left: 50%;
+    //     transform: translate(-50%, -50%);
+    //     border-radius: var(--Button-border-radius);
+    //     height: 90%;
+    //     width: 90%;
+    //     opacity: 0;
+    //     background: var(--_Button-accent);
+    //     transition: 125ms;
+    // }
+
+    &.Button--disabled {
+        pointer-events: none !important;
+        opacity: 0.25;
+    }
+
+    &.Button--active {
+        --_Button-accent: var(--Button--active-accent);
+        --_Button-color: var(--Button--active-color);
+    }
+    
+    &:hover {
+        @media(hover: hover) {
+            --_Button-accent: var(--Button--hover-accent);
+            --_Button-color: var(--Button--hover-color);
+        }
+    }
+
+    &.Button--primary,
+    &.Button--primary-invert {
+        background: var(--_Button-accent);
+        color: var(--_Button-color);
+    }
+
+    &.Button--primary-invert {
+        --Button--hover-accent: var(--Button-color) !important;
+    }
+
+    &.Button--secondary {
+        --bs-gutter-x: 0.25rem;
+        background: transparent;
+        color: var(--Button-color);
+        border: 1px solid var(--Button-accent);
+
+        &.Button--active {
+            background: var(--_Button-accent);
+            color: var(--_Button-color);
+        }
+    }
+
+    &.Button--link {
+        --bs-gutter-x: 0.25rem;
+        background: transparent;
+        color: var(--Button-color);
+        padding: var(--Button--link-padding);
+
+        &.Button--active {
+            color: var(--Button--active-color);
+        }
+    }
+
+
+    &.Button--chip {
+        border-radius: var(--Button--chip-border-radius);
+        background: var(--Button-accent);
+        padding: var(--Button--chip-padding);
+        color: var(--Button-color);
+    }
+
+    &.Button--tile {
+        padding: 0;
+        background-color: transparent;
+
+        & > .Tile {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}

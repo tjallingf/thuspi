@@ -1,0 +1,62 @@
+@use "sass:list"; 
+
+html[data-theme="dark"] {
+    // ------------------------------ //
+    //             COLORS             //
+    // ------------------------------ //
+
+    // List of all colors with their hue, saturation, and lightness value
+    $colors: (
+        'primary': (200, 19%, -5%),
+        'blue': (210, 79%, 5%),
+        'green': (92, 48%, 0%),
+        'orange': (30, 100%, 3%),
+        'red': (0, 65%, 10%),
+        'yellow': (38, 100%, 7%),
+        'violet': (282, 68%, 0%),
+        'magenta': (336, 78%, 0%),
+        'cyan': (186, 100%, 0%),
+        'purple': (258, 58%, 0%),
+        'brown': (14, 26%, 0%)
+    );
+
+    @each $name, $hue-sat-lgt in $colors {
+        --theme-#{$name}-hue-sat: #{list.nth($hue-sat-lgt, 1)}, #{list.nth($hue-sat-lgt, 2)};
+        --theme-#{$name}-lgt: #{list.nth($hue-sat-lgt, 3)};
+
+        @for $i from 1 through 9 {
+            --#{$name}-#{$i*100}: hsl(var(--theme-#{$name}-hue-sat), calc(100%/15*#{11 - $i} + var(--theme-#{$name}-lgt)));
+        };
+    };
+
+    // ------------------------------ //
+    //           TEXT COLORS          //
+    // ------------------------------ //
+
+    --text-primary: hsl(0, 0%, 100%);
+	--text-secondary: hsl(0, 0%, 100%);
+	--text-muted: hsl(0, 0%, 65%);
+
+    // ------------------------------ //
+    //           OTHER COLORS         //
+    // ------------------------------ //
+    
+    --clr-selection: hsla(0, 0%, 100%, 0.1);
+    --clr-box-shadow: hsla(0, 0%, 0%, 0.05);
+    --clr-transparent: transparent;
+
+    // ------------------------------ //
+    //           COMPONENTS           //
+    // ------------------------------ //
+
+    // App
+    --App-background: var(--primary-900);
+    --App-color: var(--text-primary);
+    --App-font-family: var(--normal-font-family);
+    --App-margin: 0.5rem;
+
+    --Backdrop-background: hsla(0, 0%, 0%, 0.8);
+    
+    // Color Scheme
+    color-scheme: dark;
+}

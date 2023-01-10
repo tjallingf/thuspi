@@ -1,0 +1,52 @@
+@import '../variables';
+@import '../bootstrap/mixins/breakpoints';
+
+.NavbarButton {
+    --Button-accent: var(--text-primary) !important;
+    position: relative;
+    flex-direction: row;
+    row-gap: 0;
+    justify-content: start;
+    margin: 0 auto;
+    width: auto;
+    height: auto;
+
+    /* Horizontal Navbar */
+    @media(max-width: breakpoint-max($breakpoint-vertical-navbar)) {
+        flex-direction: column;
+        justify-content: center;
+        width: 3rem;
+        height: 100%;
+        padding-top: 0;
+        padding-bottom: 0;
+
+        .NavbarButton__text {
+            font-size: var(--fs-xs);
+            position: relative;
+            display: block;
+            max-height: 0px;
+            opacity: 0;
+            transition: 200ms ease-in-out max-height, 200ms ease-in-out opacity;
+        }
+
+        &.Button--active {
+            .NavbarButton__text {
+                max-height: 2em;
+                opacity: 1;
+            }
+        }
+    }
+
+    /* Vertical Navbar */
+    @media(min-width: breakpoint-min($breakpoint-vertical-navbar)) {
+        padding: 0.5rem 0 !important;
+        width: 100%;
+        margin: 0;
+        display: inline;
+        text-align: center;
+
+        .NavbarButton__text {
+            display: none;
+        }
+    }
+}

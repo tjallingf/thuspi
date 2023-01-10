@@ -1,0 +1,31 @@
+@import '../variables.scss';
+
+.Icon {
+    --Icon-size: #{map-get($fs-icon, md)};
+    --Icon-size-outer: calc(var(--Icon-size) + 0.25rem);
+    display: inline-flex !important;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--Icon-size);
+    min-height: var(--Icon-size-outer);
+    max-height: var(--Icon-size-outer);
+    min-width: var(--Icon-size-outer);
+    max-width: var(--Icon-size-outer);
+    object-fit: cover;
+
+    &.icon--w-auto {
+        min-width: unset;
+        max-width: unset;
+    }
+
+    &.icon--h-auto {
+        min-height: unset;
+        max-height: unset;
+    }
+
+    @each $name, $size in $fs-icon {
+        &.Icon--size-#{$name} {
+            --Icon-size: #{$size} !important;
+        }
+    }
+}

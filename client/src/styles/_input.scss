@@ -1,0 +1,21 @@
+.input-group {
+    flex-wrap: nowrap;
+
+    > *:first-child {
+        &, & > .InputText {
+            border-bottom-right-radius: 0px !important;
+            border-top-right-radius: 0px !important;
+        }
+    }
+
+    > *:last-child {
+        &, & > .InputText {
+            border-bottom-left-radius: 0px !important;
+            border-top-left-radius: 0px !important;
+        }
+    }
+
+    > * {
+        min-height: 100%;
+    }
+}

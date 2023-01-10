@@ -1,0 +1,58 @@
+{
+    "current": {
+        "icon": "fal.a",
+        "unit": "A"
+    },
+    "energy": {
+        "icon": "fal.e",
+        "unit": "kJ"
+    },
+    "height": {
+        "icon": "fal.ruler-vertical",
+        "unit": "m"
+    },
+    "humidity": {
+        "icon": "fal.droplet-percent",
+        "unit": "%"
+    },
+    "power": {
+        "icon": "fal.p",
+        "unit": "kW"
+    },
+    "state": {
+        "icon": "fal.circle-dot",
+        "unit": ""
+    },
+    "temperature": {
+        "icon": "fal.temperature-half",
+        "unit": "°C"
+    },
+    "time": {
+        "icon": "fal.clock",
+        "unit": ""
+    },
+    "value": {
+        "icon": "fal.hashtag",
+        "unit": ""
+    },
+    "voltage": {
+        "icon": "fal.v",
+        "unit": "V"
+    },
+    "weight": {
+        "icon": "fal.weight-hanging",
+        "unit": "kg"
+    },
+    "width": {
+        "icon": "fal.ruler-horizontal",
+        "unit": "m"
+    },
+    "surface": {
+        "icon": "far.square",
+        "unit": "m²"
+    },
+    "volume": {
+        "icon": "fal.cube",
+        "unit": "m³"
+    }
+}

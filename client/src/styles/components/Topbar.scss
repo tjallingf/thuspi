@@ -1,0 +1,25 @@
+@import '../variables';
+@import '../bootstrap/mixins/breakpoints';
+
+.Topbar {
+    grid-area: Topbar;
+    background: var(--Topbar-background);
+    border-bottom: var(--Topbar-border);
+    border-radius: var(--Topbar-border-radius);
+    box-shadow: var(--Topbar-box-shadow);
+    min-height: var(--Topbar-height);
+    position: relative;
+    padding: 1rem;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    > .container {
+        min-height: var(--Topbar-height);
+    }
+
+    @media(max-width: breakpoint-max($breakpoint-vertical-navbar)) {
+        --Topbar-background: var(--Topbar--horizontal-background);
+        --Topbar-border: var(--Topbar--horizontal-border);
+        --Topbar-box-shadow: var(--Topbar--horizontal-box-shadow);
+    }
+}

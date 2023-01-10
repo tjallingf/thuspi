@@ -1,0 +1,43 @@
+@import '../../variables.scss';
+
+.InputSwitch {
+    --_InputSwitch__track--active-background: var(--Input-accent-500, var(--InputSwitch__track--active-background));
+
+    > .InputSwitch__track {
+        width: var(--InputSwitch__track-width);
+        border-radius: calc(var(--InputSwitch__track-border-radius) - var(--InputSwitch__track-padding) / 2);
+        background: var(--InputSwitch__track-background);
+        padding: var(--InputSwitch__track-padding);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: $trst-background;
+
+        > .InputSwitch__thumb {
+            height: var(--InputSwitch__thumb-height);
+            width: var(--InputSwitch__thumb-width);
+            border-radius: var(--InputSwitch__thumb-border-radius);
+            background: var(--InputSwitch__thumb-background);
+            transition: $trst-margin, $trst-background;
+        }
+    }
+
+    &[data-value="true"] {
+        > .InputSwitch__track {
+            background: var(--_InputSwitch__track--active-background);
+
+            > .InputSwitch__thumb {
+                margin-left: calc(var(--InputSwitch__track-width) - var(--InputSwitch__thumb-width) - 2 * var(--InputSwitch__track-padding));
+                background: var(--InputSwitch__thumb--active-background);
+            }
+        }
+    }
+
+    @media(hover: none) {
+        /* Increase touch target */
+        max-height: 3rem;
+        height: 100%;
+        display: flex;
+        align-items: start;
+    }
+}

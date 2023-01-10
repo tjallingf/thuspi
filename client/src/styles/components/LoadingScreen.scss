@@ -1,0 +1,17 @@
+.LoadingScreen {
+    opacity: 1 !important;
+    transition: 1000ms opacity, 500ms background, 500ms;
+    background: #000000;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 800;
+    overflow: hidden;
+
+    &.LoadingScreen--fade-out {
+        pointer-events: none;
+        opacity: 0 !important;
+    }
+}
