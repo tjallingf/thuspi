@@ -1,11 +1,10 @@
-# thuspi
 Hi👋
 
 ThusPi is a moden smarthome system for the Raspberry Pi, that's still highly in development.
 
 # Contributing
 
-If you'd like to help contribute to this project, or have any questions or remarks about it in general, feel free to contact me (see [my profile](https://github.com/tjallingf/) for details). I'm keen to hear from you!
+If you'd like to help contribute to this project, or have any questions or remarks about it in general, feel free to contact me (see [my profile](https://github.com/tjallingf/) for details). I'd be glad to hear from you!
 
 # Todo
 
