@@ -1,0 +1,20 @@
+@use 'sass:math';
+
+@mixin neutral-palette($mode: light, $length: $neutral-scale-length) {      
+    $hue: 225 !default;
+    $saturation: 10% !default;
+    $base: 100% !default;
+    $mod: -1 !default;
+
+    @if $mode == dark {
+        $base: 5%;
+        $mod: 1;
+    }
+    
+    @for $i from 0 through $length - 1 {
+        --neutral-#{$i}: #{hsl($hue, $saturation, calc($base + $mod * step(100%, $length, $i)))};
+    }
+    
+    --light: #{hsl($hue, $saturation, 100%)};
+    --dark: #{hsl($hue, $saturation, step(100%, $length, 1))};
+}

@@ -1,0 +1,80 @@
+:root {
+    --border-radius-sm: 0.25rem;
+    --border-radius-md: 0.5rem;
+    --border-radius-lg: 0.75rem;
+
+    --App-background: var(--neutral-1);
+    --App-font-size: var(--font-size-sm);
+
+    // Topbar
+    --Topbar-background: var(--neutral-2);
+    --Topbar-height: 3.5rem;
+
+    // TextInput
+    --TextInput-background: var(--neutral-2);
+    --TextInput-color: var(--text-primary);
+    --TextInput-padding-x: 0.75rem;
+    --TextInput-padding-y: 0.5rem;
+
+    // ToggleInput
+    --ToggleInput__track-height: 1.5rem;
+    --ToggleInput__track-width: 3.25rem;
+    --ToggleInput__thumb-background: var(--neutral-6);
+    --ToggleInput--enabled__thumb-background: var(--neutral-8);
+    --ToggleInput__track-background: var(--neutral-3);
+    --ToggleInput__thumb-height: 1.125rem;
+    --ToggleInput__thumb-offset: 0.1875rem;
+    --ToggleInput__thumb-width: var(--ToggleInput__thumb-height);
+    --ToggleInput__track-border-radius: var(--border-radius-md);
+    --ToggleInput__thumb-border-radius: calc(var(--ToggleInput__track-border-radius) - var(--ToggleInput__thumb-offset));
+
+    // Navbar
+    --Navbar-background: var(--neutral-2);
+    --Navbar-border: none;
+    --Navbar-height: 3.5rem;
+    --Navbar-width: 3.5rem;
+
+    // Tile
+    --Tile-background: var(--neutral-2);
+    --Tile-color: var(--text-light);
+    --Tile-padding-x: 0.5rem;
+    --Tile-padding-y: 0.5rem;
+    --Tile-border-radius: var(--border-radius-lg);
+    --Tile__thumbnail-img-size: 40px;
+    
+    // LoadingIcon
+    --LoadingIcon-animation-duration: 2000ms;
+    --LoadingIcon-rotate-start: 270deg;
+    --LoadingIcon-color: currentColor;
+    --LoadingIcon--animated--cycle-1-color: var(--blue-6);
+    --LoadingIcon--animated--cycle-2-color: var(--green-6);
+    --LoadingIcon--animated--cycle-3-color: var(--yellow-6);
+    --LoadingIcon--animated--cycle-4-color: var(--red-6);
+    --LoadingIcon--animated--cycle-5-color: var(--purple-6);
+
+    --text-muted: var(--neutral-13);
+
+    --transparent: transparent;
+
+    --font-size-xl: 20px;
+    --font-size-lg: 18px;
+    --font-size-md: 16px;
+    --font-size-sm: 14px;
+    --font-size-xs: 12px;
+
+    --blue: 208, 100%;
+    --cyan: 180, 59%;
+    --green: 127, 63%;
+    --magenta: 336, 78%;
+    --orange: 30, 100%;
+    --purple: 258, 58%;
+    --red: 3, 100%;
+    --violet: 314, 88%;
+    --yellow: 52, 100%;
+
+    @media(max-width: breakpoint-max($breakpoint-vertical-navbar)) {
+        --Topbar-background: var(--App-background);
+        --Navbar-background: var(--App-background);
+        --Navbar-border: 2px solid var(--neutral-2);
+    }
+}

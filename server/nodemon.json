@@ -1,0 +1,10 @@
+{   
+    "ignore": [
+        "storage/**/*.json",
+        "build/**",
+        "src/**",
+        "config/devices.json",
+        "config/flows.json",
+        "config/users.json"
+    ]
+}

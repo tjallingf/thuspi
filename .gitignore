@@ -1,0 +1,40 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Dist files
+server/public/**
+
+# Userdata
+server/storage/cache/**
+server/storage/db/**
+server/storage/log/**
+server/storage/static/**
+server/storage/tmp/**
+server/storage/extensions/**
+server/config/secret.json
+server/config/flows.json
+
+# Other
+**-legacy/

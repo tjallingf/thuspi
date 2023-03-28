@@ -1,0 +1,28 @@
+@import './mixins';
+@import './functions';
+
+$colors: (
+    'blue': (208, 100%),
+    'cyan': (180, 59%),
+    'green': (127, 63%),
+    'magenta': (336, 78%),
+    'orange': (30, 100%),
+    'purple': (258, 58%),
+    'red': (3, 100%),
+    'violet': (314, 88%),
+    'yellow': (52, 100%)
+);
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+$color-scale-length: 10;
+$neutral-scale-length: 20;
+
+$breakpoint-vertical-navbar: sm;

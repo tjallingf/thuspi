@@ -1,0 +1,11 @@
+{
+    "webClient": {
+        "port": 4300
+    },
+    "flows": {
+        "interval": 60
+    },
+    "logs": {
+        "printLevels": ["error", "info", "debug", "warn"]
+    }
+}

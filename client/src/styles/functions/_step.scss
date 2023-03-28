@@ -1,0 +1,5 @@
+@import './math';
+
+@function step($max, $total, $index, $precision: 2) {
+    @return round-precision(calc($max / $total * $index), $precision);
+}
