@@ -1,24 +1,20 @@
-const Controller = require('@controllers/Controller');
-const DeviceModel = require('@models/DeviceModel');
-const ConfigController = require('@controllers/ConfigController');
+const ControllerAsync = require('@/controllers/ControllerAsync');
+const Device = require('@/models/devices/Device');
+const Database = require('@/utils/database');
 const _ = require('lodash');
 
-class DeviceController extends Controller {
-    static populate() {
-        return _.mapValues(ConfigController.find('devices'), (props, id) => 
-            new DeviceModel(id, props, this));
+class DeviceController extends ControllerAsync {
+    static doExcludeInvalid = true;
+
+    static async _populate() {
+        const rows = await Database.query("SELECT * FROM `devices` WHERE `driver` LIKE '%somfy%'");
+        return this._mapModel(rows, Device);
     }
 
-    static indexForDriverType(driverType) {
-        return _.pickBy(this.index(), d => d.getProp('driver.type') == driverType);
-    }
-
-    static indexForConnectionType(connectionType) {
-        return _.pickBy(this.index(), d => d.getProp('connection.type') == connectionType);
-    }
-
-    static handleUpdate(id) {
-        ConfigController.updateById('devices', id, this.find(id).getProps());
+    static update(id, props) {
+        const fields = _.omit(props, 'id');
+        const fieldsStr = Database.escape(fields);
+        Database.query('UPDATE `devices` SET '+fieldsStr+' WHERE `id` = ?', [ id ]);
     }
 }
 

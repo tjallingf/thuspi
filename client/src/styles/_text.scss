@@ -1,6 +1,0 @@
-@import './variables';
-@import './mixins/text-variant';
-
-@each $name, $color in $text-colors {
-    @include text-variant($name, var(--#{$color}));
-}

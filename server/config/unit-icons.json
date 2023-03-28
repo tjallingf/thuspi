@@ -1,0 +1,44 @@
+{
+    "current": {
+        "icon": "a"
+    },
+    "energy": {
+        "icon": "e"
+    },
+    "height": {
+        "icon": "ruler-vertical"
+    },
+    "humidity": {
+        "icon": "droplet-percent"
+    },
+    "power": {
+        "icon": "p"
+    },
+    "state": {
+        "icon": "circle-dot"
+    },
+    "temperature": {
+        "icon": "temperature-half"
+    },
+    "time": {
+        "icon": "clock"
+    },
+    "value": {
+        "icon": "hashtag"
+    },
+    "voltage": {
+        "icon": "v"
+    },
+    "mass": {
+        "icon": "weight-hanging"
+    },
+    "width": {
+        "icon": "ruler-horizontal"
+    },
+    "surface": {
+        "icon": "square"
+    },
+    "volume": {
+        "icon": "cube"
+    }
+}

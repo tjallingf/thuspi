@@ -1,59 +1,68 @@
 const _ = require('lodash');
+const Model = require('@/models/Model');
 
-/**
- * Abstract Class Controller
- *
- * @class Controller
- */
 class Controller {
     static data;
-    static secretKeypaths = [];
+    static privateKeypaths = [];
+    static doExcludeInvalid = false;
 
-    static shouldPopulate() {
-        return this.data == undefined;
+    static index(doIncludePrivateKeypaths = true) {
+        return Object.values(this._indexObject(doIncludePrivateKeypaths));
     }
 
-    static updateIndex(newData) {
-        this.data = newData;
-        return this;
+    static indexBy(predicate, doIncludePrivateKeypaths = true) {
+        return _.filter(this.index(doIncludePrivateKeypaths), predicate);
     }
 
-    static index() {
-        if(this.shouldPopulate()) this.updateIndex(this.populate());
-
-        return this.data || {};
+    static find(keypath, doIncludePrivateKeypaths = true) {
+        return _.get(this._indexObject(doIncludePrivateKeypaths), keypath);
     }
 
-    static find(keypath) {
-        return _.get(this.index(), keypath);
-    }
-
-    static safeIndex() {
-        return _.omit(this.index(), this.secretKeypaths);
-    }
-
-    static safeFind(keypath) {
-        return _.get(this.safeIndex(), keypath);
-    }
-
-    static exists(keypath) {
-        return this.find(keypath) != undefined;
-    }
-
-    static populate() {
-        throw new Error('Method populate() is not implemented.');
+    static exists(keypath, doIncludePrivateKeypaths = true) {
+        return this.find(keypath, doIncludePrivateKeypaths) != undefined;
     }
 
     static update(keypath, value) {
-        return this.updateIndex(_.set(this.index(), keypath, value));
+        return this.store(_.set(this._indexObject(), keypath, value));
     }
 
-    static handleUpdate(id) {
-        throw new Error('Method handleUpdate() is not implemented.');
+    static store(newData) {
+        if(this.doExcludeInvalid) {
+            newData = _.pickBy(newData, model => {
+                if(!model instanceof Model) return true;
+                return !model.isInvalid;
+            }) 
+        }
+
+        this.data = newData;
+
+        return this;
+    }
+    
+    static _indexObject(doIncludePrivateKeypaths = true) {
+        if(this._shouldPopulate()) this.store(this._populate());
+
+        if(!doIncludePrivateKeypaths)
+            return _.omit(this.data || {}, this.privateKeypaths);
+        
+        return this.data || {};
     }
 
-    static handleDelete(id) {
-        throw new Error('Method handleDelete() is not implemented.');
+    static _shouldPopulate() {
+        return this.data == undefined;
+    }
+
+    /**
+     * Fetches data from the filesystem or database.
+     * @returns {array} The data.
+     */
+    static _populate() {
+        throw new Error('Method _populate() is not implemented.');
+    }
+
+    static _mapModel(rows, model) {
+        return Object.fromEntries(_.map(rows, props => 
+            [ props.id, new model(props.id, props, this) ]))
     }
 }
 

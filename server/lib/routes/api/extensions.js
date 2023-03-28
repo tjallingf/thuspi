@@ -1,4 +1,4 @@
-const ExtensionController = require('@controllers/ExtensionController');
+const ExtensionController = require('@/controllers/ExtensionController');
 const path = require('path');
 const _ = require('lodash');
 
@@ -6,18 +6,7 @@ module.exports = app => {
     app.get('/api/extensions', async (req, res, next) => {
         const extensions = ExtensionController.index();
 
-        return res.json(_.mapValues(extensions, extension => {
-            return extension.mapChildren(null, (item, itemName) => {
-                const itemBasename = path.basename(itemName);
-
-                const data = item;
-
-                if(itemBasename == 'manifest')
-                    data.contents = extension.readItem(itemName, { allowScripts: true });
-
-                return data;
-            })
-        }));
+        return res.json(extensions);
     })
 
     app.get('/api/extensions/:id/modules/*', async (req, res, next) => {
@@ -34,10 +23,10 @@ module.exports = app => {
 
         let data = {};
         try {
-            const item = extension.getItem(itemName);
+            const item = extension.getModule(itemName);
             data = {
                 name: item.name,
-                contents: extension.readItem(itemName, { allowScripts: true })
+                contents: extension.readContents(itemName, { allowScripts: true })
             };
         } catch(err) {
             return next(err);

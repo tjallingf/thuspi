@@ -1,23 +1,23 @@
-const Controller = require('@controllers/Controller');
-const ConfigController = require('@controllers/ConfigController');
-const UserModel = require('@models/UserModel');
+const ControllerAsync = require('@/controllers/ControllerAsync');
+const ConfigController = require('@/controllers/ConfigController');
+const Database = require('@/utils/database');
+const UserModel = require('@/models/User');
 const _ = require('lodash');
 
-class UserController extends Controller {
+class UserController extends ControllerAsync {
     /**
      * Creates and stores an object of users.
      */
-    static populate() {
-        return _.mapValues(ConfigController.find('users'), (props, id) => 
-            new UserModel(id, props, this));
+    static async _populate() {
+        const rows = await Database.query('SELECT * FROM `users`');
+        const defaultUser = ConfigController.find('default-user');
+        rows.push({ ...defaultUser, id: 'default' });
+        
+        return this._mapModel(rows, UserModel);
     }
 
-    static findByUsername(username) {
-        return _.find(this.index(), u => u.getProp('username') == username);
-    }
-
-    static update(id, newProps) {
-        ConfigController.updateById('users', id, newProps);
+    static async findByUsername(username) {
+        return _.find(await this.index(), u => u.getProp('username') == username);
     }
 }
 

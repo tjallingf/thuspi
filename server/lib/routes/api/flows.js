@@ -1,15 +1,15 @@
-const FlowController = require('@controllers/FlowController');
-const FlowModel = require('@models/FlowModel');
+const FlowController = require('@/controllers/FlowController');
+const Flow = require('@/models/flows/Flow');
 const _ = require('lodash');
 
 module.exports = app => {
     app.get('/api/flows', (req, res) => {
         return res.send(_.pickBy(FlowController.index(), (flow, flowId) => 
-            new FlowModel(flowId).isValid));
+            new Flow(flowId).isValid));
     })
 
     app.get('/api/flows/:id', async (req, res) => {
-        return res.send(new FlowModel(req.params.id));
+        return res.send(new Flow(req.params.id));
     })
 }
 

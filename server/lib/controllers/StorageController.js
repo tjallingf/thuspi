@@ -1,5 +1,5 @@
-const Controller = require('@controllers/Controller');
-const glob = require('glob');
+const Controller = require('@/controllers/Controller');
+const { globSync } = require('glob');
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
@@ -7,7 +7,7 @@ const path = require('path');
 class StorageController extends Controller {
     static index() {
         if(this.files == undefined)
-            this.populate();
+            this._populate();
 
         return Object.fromEntries(this.files.map(file => {
             return [ path.parse(file).name, content ];
@@ -15,7 +15,7 @@ class StorageController extends Controller {
     }
 
     static find(file) {
-        const filepath = path.join(DIRS.STORAGE, file+'.json');
+        const filepath = path.join(STORAGE_DIR, file+'.json');
 
         if(!fs.existsSync(filepath))
             return null;
@@ -24,7 +24,7 @@ class StorageController extends Controller {
     }
 
     static update(file, data) {
-        const filepath = path.join(DIRS.STORAGE, file+'.json');
+        const filepath = path.join(STORAGE_DIR, file+'.json');
 
         if(!fs.existsSync(filepath))
             return null;
@@ -32,8 +32,8 @@ class StorageController extends Controller {
         return fs.writeFileSync(filepath, JSON.stringify(data), 'utf8');
     }
 
-    static populate() {
-        this.files = glob.sync('data/*.json', { cwd: DIRS.STORAGE });
+    static _populate() {
+        this.files = globSync('data/*.json', { cwd: STORAGE_DIR });
     }
 }
 

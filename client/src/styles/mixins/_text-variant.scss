@@ -1,5 +1,0 @@
-@mixin text-variant($name, $color) {
-    .text-#{$name} {
-        color: #{$color} !important;
-    }
-}

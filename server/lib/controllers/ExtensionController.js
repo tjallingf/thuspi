@@ -1,66 +1,90 @@
-const Controller = require('@controllers/Controller');
-const glob = require('glob');
+const Controller = require('@/controllers/Controller');
+const { globSync } = require('glob');
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const ExtensionModel = require('@models/ExtensionModel');
+const Extension = require('@/models/extensions/Extension');
+const ExtensionNotInstalledError = require('@/errors/ExtensionNotInstalledError');
 
 class ExtensionController extends Controller {
     // static get FileExtensionsWhiteList() { return ['json', 'js', 'py']; };
 
     /**
-     * Gets a list of all enabled extensions.
-     * @returns {array}
+     * Loads the modules of all extensions.
+     * @returns {Promise}
      */
-    static populate() {
-        const extManifests = glob.sync('*/manifest.json', { cwd: DIRS.EXTENSIONS });
-
-        // Create object of extensions, like { extId: extManifest }
-        return Object.fromEntries(_.map(extManifests, filepath => {
-            // Get the id of the extension from the manifest's filepath
-            const id = path.dirname(filepath);
-
-            // Read the contents of the manifest file
-            const content = fs.readFileSync(path.join(DIRS.EXTENSIONS, filepath), 'utf8');
-            const manifest = JSON.parse(content);
-
-            const extension = new ExtensionModel(id, manifest);
-
-            return [ id, extension ];
-        }))
-    }
-
-     /**
-     * Gets a list of extensions that have a specific item.
-     * @param {string} itemName The item the extension has to have (i.e. 'listeners/app_start').
-     * @returns {ExtensionModel[]} Array of extensions that have the item in question.
-     */
-    static findAllWithItem(itemName) {
-        return Object.values(this.index()).filter(extension => {
-            return extension.hasItem(itemName);
-        });
+    static async load() {
+        return Promise.all(this.index().map(ext => ext.init()))
     }
 
     /**
-     * Applies the callback for all extensions that have the given item
-     * @param {string} itemName The item the extension has to have (i.e. 'listeners/app_start').
-     * @param {mapWithItem_callback} callback The callback to apply for each extension. 
-     * @returns 
+     * Gets a list of all enabled extensions.
+     * @returns {array}
      */
-    static mapAllWithItem(itemName, callback) {
-        const extensions = this.findAllWithItem(itemName);
+    static _populate() {
+        const manifestFilepaths = globSync('*/manifest.json', { cwd: EXTENSIONS_DIR, absolute: true });
 
-        return _.map(extensions, extension => 
-            callback.apply(null, [extension, itemName]));
+        // Create an object of extensions
+        return Object.fromEntries(_.map(manifestFilepaths, filepath => {
+            // Get the id of the extension from the manifest's filepath
+            const extId = path.basename(path.dirname(filepath));
+
+            // Read the contents of the manifest file
+            const content = fs.readFileSync(filepath, 'utf8');
+            const manifest = JSON.parse(content);
+
+            const extension = new Extension(extId, manifest);
+
+            return [ extId, extension ];
+        }))
+    }
+
+    /**
+     * Calls the callback for all extensions that have the given file.
+     * @param {Array|string} assetId The id of the asset.
+     * @param {Function} callback The callback to apply for each extension. 
+     * @returns {Array}
+     */
+    static mapAssets(assetId, callback) {
+        const extensions = this.indexBy(ext => ext.hasAsset(assetId));
+        
+        return _.map(extensions, ext => {
+            const asset = ext.getAsset(assetId);
+            return callback?.apply(null, [ asset, ext ]);
+        })
+    }
+    
+    /**
+     * Finds an extension by id.
+     * @param {string} id - The id of the extension to find.
+     * @throws {ExtensionNotInstalledError} - If the extension is not installed.
+     * @returns {Extension} The extension.
+     */
+    static find(id) {
+        const extension = super.find(id);
+
+        if(extension instanceof Extension) 
+            return extension;
+
+        throw new ExtensionNotInstalledError(id);
+    }
+
+    static findModule(typeName, id) {
+        if(!typeof id == 'string' || !id.includes('/'))
+            return null;
+        
+        const [ extId, moduleId ] = id.split('/');
+        const ext = this.find(extId);
+        return ext.getModule(typeName, moduleId);
     }
 
     // /**
     //  * Creates and stores a list of extensions.
     //  * @returns {ExtensionController}
     //  */
-    // static populate() {
+    // static _populate() {
     //     // Get a list of extension ids
-    //     const extensionIds = glob.sync('*/manifest.json', { cwd: DIRS.EXTENSIONS })
+    //     const extensionIds = globSync('*/manifest.json', { cwd: EXTENSIONS_DIR })
     //         .map(manifestFilepath => path.dirname(manifestFilepath));
         
     //     return Object.fromEntries(extensionIds.map(extensionId => {
@@ -103,7 +127,7 @@ class ExtensionController extends Controller {
     //     const pattern = `**/*.{${this.FileExtensionsWhiteList.join(',')}}`;
 
     //     // Get a list of modules
-    //     const modules = glob.sync(pattern, { cwd: this.getModulesDir(extensionId) });
+    //     const modules = globSync(pattern, { cwd: this.getModulesDir(extensionId) });
 
     //     // Contents of the manifest
     //     const manifest = this.readManifest(extensionId);
@@ -129,7 +153,7 @@ class ExtensionController extends Controller {
 
     //                 // The keypath for in the manifest-lock.json file
     //                 // (removing any _) from the start of the file.
-    //                 const keypath = _.trimStart(nameWithDirs, '_').replaceAll('/', '.items.');
+    //                 const keypath = _.trimStart(nameWithDirs, '_').replaceAll('/', '.modules.');
 
     //                 _.set(data.modules, keypath, {
     //                     path: path.join(this.getModulesDir(extensionId), filepath),
@@ -154,7 +178,7 @@ class ExtensionController extends Controller {
     //  * @returns {string} The root directory path of the extension.
     //  */
     // static getDir(extensionId) {
-    //     return path.join(DIRS.EXTENSIONS, extensionId);
+    //     return path.join(EXTENSIONS_DIR, extensionId);
     // }
 
     // /**

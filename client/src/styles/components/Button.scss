@@ -1,105 +1,103 @@
-@import '../variables.scss';
+@import '../variables';
 
 .Button {
-    --_Button-accent: var(--Button-accent);
-    --_Button-color: var(--Button-color);
-    text-decoration: none;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    column-gap: var(--bs-gutter-x, $spacer-2);
-    flex-wrap: nowrap;
-    padding: var(--Button-padding);
-    outline: none;
     border: none;
-    z-index: 1;
-    position: relative;
-    overflow: visible;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
-    border-radius: var(--Button-border-radius);
-    white-space: nowrap;
+    background-color: var(--Button-bg);
+    color: var(--Button-color);
+    padding: var(--Button-padding-y) var(--Button-padding-x);
+}
 
-    // &::after {
-    //     content: '';
-    //     z-index: -1;
-    //     position: absolute;
-    //     top: 50%;
-    //     left: 50%;
-    //     transform: translate(-50%, -50%);
-    //     border-radius: var(--Button-border-radius);
-    //     height: 90%;
-    //     width: 90%;
-    //     opacity: 0;
-    //     background: var(--_Button-accent);
-    //     transition: 125ms;
-    // }
+// -------------------------- //
+//           STATES           //
+// -------------------------- //
 
-    &.Button--disabled {
-        pointer-events: none !important;
-        opacity: 0.25;
+.Button:hover {
+    background-color: var(--Button-bg);
+    color: var(--Button-color);
+
+    @media(hover: hover) {
+        background-color: var(--Button--hover-bg);
+        color: var(--Button--hover-color);
     }
+}
 
-    &.Button--active {
-        --_Button-accent: var(--Button--active-accent);
-        --_Button-color: var(--Button--active-color);
-    }
-    
-    &:hover {
-        @media(hover: hover) {
-            --_Button-accent: var(--Button--hover-accent);
-            --_Button-color: var(--Button--hover-color);
-        }
-    }
+.Button.Button--focus {
+    background-color: var(--Button--focus-bg);
+    color: var(--Button--focus-color);
+}
 
-    &.Button--primary,
-    &.Button--primary-invert {
-        background: var(--_Button-accent);
-        color: var(--_Button-color);
-    }
+.Button.Button--active {
+    background-color: var(--Button--active-bg);
+    color: var(--Button--active-color);
+}
 
-    &.Button--primary-invert {
-        --Button--hover-accent: var(--Button-color) !important;
-    }
-
-    &.Button--secondary {
-        --bs-gutter-x: 0.25rem;
-        background: transparent;
-        color: var(--Button-color);
-        border: 1px solid var(--Button-accent);
-
-        &.Button--active {
-            background: var(--_Button-accent);
-            color: var(--_Button-color);
-        }
-    }
-
-    &.Button--link {
-        --bs-gutter-x: 0.25rem;
-        background: transparent;
-        color: var(--Button-color);
-        padding: var(--Button--link-padding);
-
-        &.Button--active {
-            color: var(--Button--active-color);
-        }
-    }
+.Button.Button--disabled,
+.Button.Button--loading,
+.Button:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
 
 
-    &.Button--chip {
-        border-radius: var(--Button--chip-border-radius);
-        background: var(--Button-accent);
-        padding: var(--Button--chip-padding);
-        color: var(--Button-color);
-    }
 
-    &.Button--tile {
-        padding: 0;
-        background-color: transparent;
+// -------------------------- //
+//           SIZES            //
+// -------------------------- //
+.Button--size-xs { 
+    --Button-padding-y: 0;
+    --Button-padding-x: 0;
+}
 
-        & > .Tile {
-            width: 100%;
-            height: 100%;
-        }
-    }
+.Button--size-sm { 
+    --Button-padding-y: 0.125rem;
+    --Button-padding-x: 0.25rem;
+}
+
+.Button--size-md { 
+    --Button-padding-y: 0.35rem;
+    --Button-padding-x: 0.5rem;
+}
+
+.Button--size-lg { 
+    --Button-padding-y: 0.5rem;
+    --Button-padding-x: 0.65rem;
+}
+
+
+// -------------------------- //
+//           SHAPES           //
+// -------------------------- //
+.Button--shape-square {
+    --Button-padding-x: var(--Button-padding-y);
+}
+
+
+// -------------------------- //
+//          VARIANTS          //
+// -------------------------- //
+.Button--variant-link {
+    background-color: transparent !important;
+}
+
+.Button--variant-minimal {
+    background-color: transparent !important;
+    color: inherit !important;
+}
+
+
+// -------------------------- //
+//        LOADING ICON        //
+// -------------------------- //
+.Button__LoadingIcon {
+    max-width: 0px;
+    margin-right: 0px;
+    transition: 125ms ease-out;
+    transition-property: margin-right, max-width;
+}
+
+.Button--loading .Button__LoadingIcon {
+    max-width: 1em;
+    margin-right: 0.5rem;
 }

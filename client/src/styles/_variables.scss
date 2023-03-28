@@ -1,47 +1,28 @@
-// Animation durations
-$adr-xs: 125ms;
-$adr-sm: 250ms;
-$adr-md: 500ms;
-$adr-lg: 750ms;
+@import './mixins';
+@import './functions';
 
-// Transition presets
-$trst-opacity: opacity $adr-xs ease-in-out;
-$trst-transform: transform $adr-xs ease-in-out;
-$trst-margin: margin $adr-xs ease-in-out;
-$trst-size: max-width $adr-xs ease-in-out, max-height $adr-xs ease-in-out;
-$trst-background: background $adr-xs ease-in-out;
-
-$fs-icon: (
-    text: 0.9em,
-    xs:   0.75rem,
-    sm:   1rem,
-    md:   1.25rem,
-    lg:   1.5rem,
-    xl:   1.65rem,
-    xxl:  1.75rem
+$colors: (
+    'blue': (208, 100%),
+    'cyan': (180, 59%),
+    'green': (127, 63%),
+    'magenta': (336, 78%),
+    'orange': (30, 100%),
+    'purple': (258, 58%),
+    'red': (3, 100%),
+    'violet': (314, 88%),
+    'yellow': (52, 100%)
 );
 
-// Text Colors
-$text-colors: (
-    "primary": "text-primary",
-    "secondary": "text-secondary",
-    "muted": "text-muted",
-    "blue": "blue",
-    "green": "green",
-    "orange": "orange",
-    "red": "red",
-    "yellow": "yellow"
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
 );
 
-// Spacers
-$spacer-1: 0.25rem;
-$spacer-2: 0.5rem;
-$spacer-3: 0.75rem;
-$spacer-4: 1rem;
-$spacer-5: 1.125rem;
-$spacer-6: 1.25rem;
-$spacer-7: 1.5rem;
+$color-scale-length: 10;
+$neutral-scale-length: 20;
 
-// Breakpoints
-$breakpoint-vertical-navbar: md;
-$breakpoint-inline-contextmenu: sm;
+$breakpoint-vertical-navbar: sm;

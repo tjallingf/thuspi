@@ -1,14 +1,16 @@
-const UserController = require('@controllers/UserController');
+const UserController = require('@/controllers/UserController');
 const _ = require('lodash');
 
-const getForUser = (req, next) => {
-    const forUserId = req.params.id === 'me' ? req.user.id : req.params.id;
-    const forUser = UserController.find(forUserId);
+const findRequestedUser = async (req, next) => {
+    const requestUserId = req.params.id === 'me' ? req.user.id : req.params.id;
+    const requestedUser = await UserController.find(requestUserId);
             
-    if(!forUser)
-        return next({status: 404, message: `Cannot find user with id '${forUserId}'.`});
+    if(!requestedUser) {
+        next({status: 404, message: `Cannot find user with id '${requestUserId}'.`});
+        return;
+    }
 
-    return forUser;
+    return requestedUser;
 }
 
 module.exports = app => {
@@ -18,21 +20,23 @@ module.exports = app => {
         return res.json(_.mapValues(users, u => u.getSafeProps()));
     })
 
-    app.get('/api/users/:id', (req, res, next) => {
-        const forUser = getForUser(req, next);
-        if(!forUser) return;
+    app.get('/api/users/:id', async (req, res, next) => {
+        const requestedUser = await findRequestedUser(req, next);
+        if(!requestedUser) return;
 
-        if(forUser.id != req.user.id && !req.user.hasPermission(`users.view.${forUser.id}`))
-            return next({status: 401, message: `No permission to view userdata for ${forUser.toString()}.`});
+        if(requestedUser.id != req.user.id && !req.user.hasPermission(`users.view.${requestedUser.id}`))
+            return next({status: 401, message: `No permission to view userdata for ${requestedUser.toString()}.`});
 
-        const json = forUser.getSafeProps();
+        const json = requestedUser.getSafeProps();
         return res.json(json);
     })
 
-    app.get('/api/users/:id/picture', (req, res, next) => {
-        const forUser = getForUser(req, next);
-        const filepath = forUser.getPicturePath();
-        if(!filepath) return next({ status: 400, message: `${forUser.toString()} does not have a picture.`});
+    app.get('/api/users/:id/picture', async (req, res, next) => {
+        const requestedUser = await findRequestedUser(req, next);
+        if(!requestedUser) return;
+        
+        const filepath = requestedUser.getPicturePath();
+        if(!filepath) return next({ status: 400, message: `${requestedUser.toString()} does not have a picture.`});
 
         return res.sendFile(filepath);
     })

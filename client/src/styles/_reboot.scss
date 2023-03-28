@@ -1,59 +1,41 @@
-@media(hover: hover) {
-	::-webkit-scrollbar {
-		background: var(--primary-800);
-		width: 8px;
-		height: 8px;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background: var(--primary-600);
-
-		&:hover {
-			background: var(--primary-500);
-		}
-	}
-}
-
-::selection {
-	background-color: var(--clr-selection);
-}
-
-html, body, #root, .App {
-	min-height: 100%;
+html, body, #root {
 	height: 100%;
-	max-height: 100%;
-	position: relative;
+	width: 100%;
 	overflow: hidden;
 }
 
-// The vertical scrollbar does not work when the mouse is all the way at the right side
-// of the page. To fix this issue, extend the page one pixel to the right.
 #root {
-	margin-right: -1px;
+	display: grid;
+	grid-template-areas: 
+		'Topbar'
+		'main'
+		'Navbar';
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr auto;
+
+	@media(min-width: breakpoint-min($breakpoint-vertical-navbar)) {
+		grid-template-areas: 
+			'Navbar Topbar'
+			'Navbar main';
+		grid-template-columns: auto 1fr;
+		grid-template-rows: auto 1fr;
+	}
+
+	color: var(--text-primary);
+	background: var(--App-background);
+	font-size: var(--App-font-size);
+	font-family: 'Inter', sans-serif;
 }
 
-body {
-	font-size: var(--fs-sm);
-	background: var(--App-background) !important;
-	color: var(--App-color) !important;
-}
-
-#modal-root {
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	overflow: hidden;
-	z-index: 700;
-	pointer-events: none;
+a {
+	text-decoration: none;
 }
 
 main {
 	grid-area: main;
+	padding-top: 0.5rem;
 	max-height: 100%;
-	overflow: hidden scroll;
-	padding: var(--App-margin);
+	overflow: hidden auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -61,19 +43,39 @@ h1, h2, h3, h4, h5, h6 {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font-weight: 600;
+	font-weight: 700;
 }
 
-h1 { font-size: var(--fs-h1); }
-h2 { font-size: var(--fs-h2); }
-h3 { font-size: var(--fs-h3); }
-h4 { font-size: var(--fs-h4); }
-h5 { font-size: var(--fs-h5); }
-h6 { font-size: var(--fs-h6); }
+h1, h2, h3 {
+	font-weight: 800;
+}
+
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-lg); }
+h3 { font-size: var(--font-size-md); }
 
 ul {
 	margin: 0;
 	padding: 0;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+// Hide password reveal button
+input::-ms-reveal,
+input::-ms-clear {
+	display: none;
+}
+
+.flex-row, .flex-column {
+	column-gap: var(--bs-gutter-x);
+	row-gap: var(--bs-gutter-y);
 }
 
 // Inert polyfill

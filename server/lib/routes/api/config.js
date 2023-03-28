@@ -1,4 +1,4 @@
-const ConfigController = require('@controllers/ConfigController');
+const ConfigController = require('@/controllers/ConfigController');
 
 module.exports = app => {
     app.get('/api/config', (req, res, next) => {
@@ -7,9 +7,9 @@ module.exports = app => {
 
     app.get('/api/config/:keypath', (req, res, next) => {
         const config = req.params['keypath'].split('.')[0];
-        const data = ConfigController.safeFind(config);
+        const data = ConfigController.find(config, false);
 
-        if(!data) return next({ status: 404, message: `Config '${config}' does not exist, or is secret.` });
+        if(!data) return next({ status: 404, message: `Config '${config}' not found.` });
         
         return res.json(data);
     })

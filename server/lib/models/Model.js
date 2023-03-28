@@ -1,66 +1,87 @@
 const _ = require('lodash');
-const { EventEmitter } = require('events');
+const { PromiseAllObject } = require('@/utils');
+const EventEmitter = require('events');
 
 class Model extends EventEmitter {
     id;
-    props = {};
-    isValid = true;
-    controller
+    isInvalid = false;
+    logger;
+    options = {};
 
-    constructor(id, props = {}, controller) {
-        super();
-        
-        if(id == undefined)
-            throw new Error('Cannot initialize Model without valid id.');
-
+    /**
+     * @param {int|string} id
+     * @param {Controller} controller
+     * @returns {this}
+     */
+    constructor(id, controller, options = {}) {   
+        super();    
         this.id = id;
-        this.props = props;
         this.controller = controller;
 
-        return this;
-    }
+        if(options) {
+            this.options = options;
 
-    getProps() {
-        const props = this.props;
-        props.id = this.id;
-        return props;
-    }
-
-    setProps(newProps) {
-        // Mutate `this.props` recursively
-        this.props = _.merge(this.props, newProps);
-
-        // Update the controller
-        this.controller.handleUpdate(this.id);
-
-        return this;
+            if(options.enableLogger)
+                this.logger = LOGGER.child({ label: this.toString() });
+            
+            if(typeof options.maxListeners == 'number') {
+                this.setMaxListeners(options.maxListeners);
+            }
+        }
     }
     
-    getProp(keypath) {
-        return _.get(this.getProps(), keypath);
-    }
-
-    setProp(keypath, value) {
-        const obj = {};
-        _.set(obj, keypath, value);
-        
-        return this.setProps(obj);
-    }
-
+    /**
+     * Converts the model to a string.
+     * @returns {string} A string representation of the model.
+     */
     toString() {
-        const type = this.constructor.name.replace('Model', '') || this.constructor.name;
-        const name = this.props.name || this.props.username || this.props.title;
+        const type = this.constructor.name;
+        const id = this.id || 'null';
 
-        return `<${type} ${name}:${this.id}>`;
+        return `[${type} ${id}]`;
     }
 
-    validate() {
-        throw new Error("Method 'validate' is not implemented.");
+    /**
+     * Converts the model to JSON.
+     * @returns {object} A JSON representation of the model.
+     */
+    toJSON() {
+        return { id: this.id };
     }
-    
-    exists() {
-        return (this.props != undefined);
+
+    /**
+     * Checks whether the model has any errors by calling this._validate().
+     * @returns {boolean} Whether the model is valid or not.
+     */
+    checkValidity() {
+        const _createMethod = (level) => {
+            const isCritical = LOGGER.levels[level] === 0;
+
+            return (message, meta) => {
+                if(this.logger)
+                    this.logger[level](message, meta);
+
+                if(isCritical) 
+                    this.isInvalid = true;
+            }
+        }
+
+        const methods = _.mapValues(LOGGER.levels, (v, level) => _createMethod(level));
+
+        this._validate(methods);
+
+        return true;
     }
+ 
+    /**
+     * Checks whether the model has any errors (must be implemented by child).
+     * @param {object} methods The methods that can be called.
+     * @returns {string|void} An error message or nothing.
+     */
+    _validate() {
+        throw new Error("Method '_validate()' is not implemented.");
+    }
+
 }
 
 module.exports = Model;
