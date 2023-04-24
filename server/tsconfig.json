@@ -1,0 +1,33 @@
+{
+    "include": [
+        "src/**/*.d.ts",
+        "src/**/*.ts",
+        "src/**/*.js"
+    ],
+    "ts-node": {
+        "transpileOnly": true
+    },
+    "compilerOptions": {
+        "types": [],
+        "moduleResolution": "node",
+        "target": "es2020",
+        "lib": [
+            "es2020"
+        ],
+        "outDir": "./dist",
+        "module": "commonjs",
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "strict": false,
+        "noImplicitReturns": false,
+        "strictPropertyInitialization": false,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./",
+        "rootDir": "./src",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
+    }
+}

@@ -1,10 +1,8 @@
-{   
+{
+    "legacyWatch": true,
+    "ext": "ts,js,json",
+    "exec": "ts-node --esm -r tsconfig-paths/register",
     "ignore": [
-        "storage/**/*.json",
-        "build/**",
-        "src/**",
-        "config/devices.json",
-        "config/flows.json",
-        "config/users.json"
+        "storage/devices/**"
     ]
 }

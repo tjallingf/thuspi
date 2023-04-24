@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.json",
+    "exclude": [
+        "storage/**/*.ts"
+    ],
+    "compilerOptions": {
+        "declaration": true,
+        "paths": {
+            "@/*": [
+                "./dist/*"
+            ]
+        }
+    }
+}
