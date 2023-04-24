@@ -1,9 +1,0 @@
-@import '../variables';
-
-.Topbar {
-    grid-area: Topbar;
-    background: var(--Topbar-background);
-    height: var(--Topbar-height);
-    position: relative;
-    padding: 0 calc(var(--App-margin-x) + 0.125rem);
-}

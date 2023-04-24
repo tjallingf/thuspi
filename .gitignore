@@ -24,17 +24,13 @@ dist-ssr
 *.sw?
 
 # Dist files
-server/public/**
+server/public
 
 # Userdata
-server/storage/cache/**
-server/storage/db/**
-server/storage/log/**
-server/storage/static/**
-server/storage/tmp/**
+server/storage/**
+!server/storage/devices
+server/storage/devices/**
+!server/storage/extensions
 server/storage/extensions/**
 server/config/secret.json
 server/config/flows.json
-
-# Other
-**-legacy/
