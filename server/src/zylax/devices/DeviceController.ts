@@ -1,4 +1,4 @@
-import ControllerDatabase from '../lib/ControllerDatabase';
+import ControllerDatabase from '../lib/DatabaseController';
 import Device from './Device';
 
 export default class DeviceController extends ControllerDatabase<Device>() {

@@ -1,9 +1,9 @@
 import { STORAGE_DIR } from '../constants';
 import type Device from '../devices/Device';
-import Record, { SerializedRecord } from './Record';
+import Record, { SerializedRecord } from './Record/Record';
 import path from 'path';
 import dayjs from 'dayjs';
-import { LTTB, createLTTB } from 'downsample'; 
+import { LTTB, createLTTB } from 'downsample';
 import { glob } from 'glob';
 import fs from 'fs/promises';
 import _ from 'lodash';
@@ -15,13 +15,13 @@ import { PromiseAllSettledObject } from '../utils/Promise';
 const RECORDINGS_FLUSH_INTERVAL = 19000;
 
 export interface Field {
-    alias: string
+    alias: string;
 }
 
 export interface RecordManagerConfig {
     fields: {
-        [key: string]: Field
-    }
+        [key: string]: Field;
+    };
 }
 
 export default class RecordManager {
@@ -36,9 +36,9 @@ export default class RecordManager {
         this.device = device;
         this.dir = path.join(STORAGE_DIR, 'devices', this.device.id.toString(), 'records');
         this.recordsInMemoryLastFlushedAt = Date.now();
-        this.loadConfig().then(config => {
+        this.loadConfig().then((config) => {
             this.config = config;
-        })
+        });
     }
 
     /**
@@ -47,26 +47,28 @@ export default class RecordManager {
      */
     push(recording: Record) {
         // Record config has to be loaded
-        if(!this.config) {
+        if (!this.config) {
             this.device.logger.notice('Tried to push a recording when the recording config was not loaded.');
             return;
         }
 
         // Device option 'recording.enabled' has to be true
-        if(this.device.getOption('recording.enabled') !== true) {
+        if (this.device.getOption('recording.enabled') !== true) {
             this.device.logger.debug(`Tried to push a recording, but option 'recording.enabled' is not true.`);
             return;
         }
-        
+
         // If device option 'recording.cooldown' is more than or equal to 1,
         // check if the new recording was performed at least 'recording.cooldown' after
         // the latest recording. If it does not, return.
         const cooldownSeconds = this.device.getOption('recording.cooldown');
-        if(cooldownSeconds >= 1) {
-            if(this.latestRecord?.date) {
+        if (cooldownSeconds >= 1) {
+            if (this.latestRecord?.date) {
                 const diffSeconds = Math.round((recording.date.getTime() - this.latestRecord.date.getTime()) / 1000);
-                if(diffSeconds < cooldownSeconds) {
-                    this.device.logger.debug(`Discarding new recording because the 'recording.cooldown' option of ${cooldownSeconds}s is not met. (${diffSeconds}s).`)
+                if (diffSeconds < cooldownSeconds) {
+                    this.device.logger.debug(
+                        `Discarding new recording because the 'recording.cooldown' option of ${cooldownSeconds}s is not met. (${diffSeconds}s).`,
+                    );
                     return;
                 }
             }
@@ -86,7 +88,7 @@ export default class RecordManager {
         const dates = await this.listDates(true);
 
         for (const date of dates) {
-            if(records.length >= top) break;
+            if (records.length >= top) break;
 
             const recordsForDate = await this.readFile(date);
             records = records.concat(recordsForDate);
@@ -105,13 +107,15 @@ export default class RecordManager {
         let records = [];
 
         let currentDate = new Date();
-        Promise.allSettled(_.map([...new Array(daysDiff)], () => {
-            currentDate = dayjs(currentDate).add(1, 'day').toDate();
-            return this.readFile(currentDate);
-        })).then(results => {
+        Promise.allSettled(
+            _.map([...new Array(daysDiff)], () => {
+                currentDate = dayjs(currentDate).add(1, 'day').toDate();
+                return this.readFile(currentDate);
+            }),
+        ).then((results) => {
             // TODO: implement
             // console.log(results);
-        })
+        });
 
         return records;
     }
@@ -120,19 +124,19 @@ export default class RecordManager {
         return new Promise<SerializedRecord[]>((resolve, reject) => {
             const filepath = this.getFilepath(date);
             fs.readFile(filepath, 'utf8')
-            .then(json => {
-                const records = JSONParseOrFail(json);
-                return resolve(records);
-            })
-            .catch(reject);
-        })
+                .then((json) => {
+                    const records = JSONParseOrFail(json);
+                    return resolve(records);
+                })
+                .catch(reject);
+        });
     }
 
     writeFile(date: Date | number | string, records: SerializedRecord[]) {
         return new Promise<void>((resolve, reject) => {
             const filepath = this.getFilepath(date);
             fs.writeFile(filepath, JSON.stringify(records));
-        })
+        });
     }
 
     /**
@@ -144,7 +148,7 @@ export default class RecordManager {
         const fields = this.config.get('fields');
 
         // Generate a new alias (try again if the generated alias is already in use)
-        while(!alias || _.some(fields, (f: Field) => f.alias === alias)) {
+        while (!alias || _.some(fields, (f: Field) => f.alias === alias)) {
             alias = randomstring.generate(2);
         }
 
@@ -164,10 +168,10 @@ export default class RecordManager {
         // Replace all backslashes with forward slashes
         const pattern = path.join(this.dir, 'by-date', '*.json').replace(/\\/g, '/');
         const filepaths = await glob(pattern, { absolute: true });
-        let dates = filepaths.map(filepath => new Date(path.parse(filepath).name));
+        let dates = filepaths.map((filepath) => new Date(path.parse(filepath).name));
 
-        if(sort) {
-            dates = dates.sort((a, b) => a.getTime() < b.getTime() ? 1 : -1);
+        if (sort) {
+            dates = dates.sort((a, b) => (a.getTime() < b.getTime() ? 1 : -1));
         }
 
         return dates;
@@ -175,7 +179,7 @@ export default class RecordManager {
 
     private getFilepath(date: number | Date | string) {
         let dateString = dayjs(date).format('YYYY-MM-DD');
-        const filepath = path.join(this.dir, 'by-date', path.basename(dateString)+'.json');
+        const filepath = path.join(this.dir, 'by-date', path.basename(dateString) + '.json');
         return filepath;
     }
 
@@ -185,9 +189,9 @@ export default class RecordManager {
      * @returns The sorted records.
      */
     private sortRecords(records: SerializedRecord[]) {
-        records.forEach(r => r.time = new Date(r.d).getTime());
-        records = records.sort((a, b) => a.time < b.time ? 1 : -1);
-        records.forEach(r => delete r.time);
+        records.forEach((r) => (r.time = new Date(r.d).getTime()));
+        records = records.sort((a, b) => (a.time < b.time ? 1 : -1));
+        records.forEach((r) => delete r.time);
         return records;
     }
 
@@ -198,7 +202,7 @@ export default class RecordManager {
     //     let downsampledByAlias = {};
 
     //     // Convert the records to lists of points ([x, y]),
-    //     // categorized by the alias of the field  
+    //     // categorized by the alias of the field
     //     fields.forEach(({ alias }) => {
     //         pointsByAlias[alias] = [];
     //         records.forEach(recording => {
@@ -212,34 +216,36 @@ export default class RecordManager {
     //     _.forOwn(pointsByAlias, (points, alias) => {
     //         downsampledByAlias[alias] = LTTB(points, target);
     //     })
-        
+
     //     return this.c
     // }
 
     private async loadConfig() {
         const filepath = path.join(this.dir, 'config.json');
-        return (await Manifest.fromFile<RecordManagerConfig>(filepath));
+        return await Manifest.fromFile<RecordManagerConfig>(filepath);
     }
 
     private store(recording: Record) {
-        if(!(recording instanceof Record)) return;
+        if (!(recording instanceof Record)) return;
 
         // Add the recording to memory.
         this.recordsInMemory.push(recording);
         this.device.logger.debug(`Stored ${recording} in memory.`);
 
         // Find the latest recording.
-        this.latestRecord = _.maxBy(this.recordsInMemory, r => r.date.getTime());
+        this.latestRecord = _.maxBy(this.recordsInMemory, (r) => r.date.getTime());
 
         // Store the records in the file system and flush the
         // recording memory if the interval has been reached.
         const timeDiff = Date.now() - this.recordsInMemoryLastFlushedAt;
-        if(timeDiff > RECORDINGS_FLUSH_INTERVAL) {
-            this.device.logger.debug(`Flushing ${this.recordsInMemory.length} recording(s) to the file system because the last flush was over ${RECORDINGS_FLUSH_INTERVAL}ms ago (${timeDiff}ms).`);
-            this.storeInFileSystem(this.recordsInMemory).then(length => {
+        if (timeDiff > RECORDINGS_FLUSH_INTERVAL) {
+            this.device.logger.debug(
+                `Flushing ${this.recordsInMemory.length} recording(s) to the file system because the last flush was over ${RECORDINGS_FLUSH_INTERVAL}ms ago (${timeDiff}ms).`,
+            );
+            this.storeInFileSystem(this.recordsInMemory).then((length) => {
                 this.device.logger.debug(`Flushed ${length} recording(s) to the file system.`);
-            })
-            
+            });
+
             // Clear the memory
             this.recordsInMemory = [];
             this.recordsInMemoryLastFlushedAt = Date.now();
@@ -251,41 +257,40 @@ export default class RecordManager {
             try {
                 // The directory in which the records are stored.
                 const dir = path.join(this.dir, 'by-date');
-                
+
                 // Create diretory if it doesn't exist.
                 await fs.access(dir).catch(() => fs.mkdir(dir, { recursive: true }));
 
                 // Subdivide records by date.
                 const recordsByDate = {};
-                records.forEach(recording => {
+                records.forEach((recording) => {
                     const formattedDate = dayjs(recording.date).format('YYYY-MM-DD');
                     recordsByDate[formattedDate] = recordsByDate[formattedDate] || [];
                     recordsByDate[formattedDate].push(recording);
-                })
+                });
 
                 // Read the existing records from the files.
                 const results = await PromiseAllSettledObject(
-                    _.mapValues(recordsByDate, (v, formattedDate: string) => this.readFile(formattedDate)
-                ));
-                
+                    _.mapValues(recordsByDate, (v, formattedDate: string) => this.readFile(formattedDate)),
+                );
+
                 _.forOwn(results, (result: any, formattedDate) => {
                     const existingRecords: SerializedRecord[] = result?.value || [];
 
                     // Serialize all records for this date.
-                    const serializedRecords = _.map(recordsByDate[formattedDate], r => r.serialize(this));
+                    const serializedRecords = _.map(recordsByDate[formattedDate], (r) => r.serialize(this));
 
                     // Append the new records to the existing records.
                     const mergedRecords = existingRecords.concat(serializedRecords);
 
                     this.writeFile(formattedDate, mergedRecords);
-
-                })
+                });
 
                 return resolve(records.length);
-            } catch(err) {
+            } catch (err) {
                 this.device.logger.error('An error occured while storing recording:', { meta: err });
                 return reject(err);
             }
-        })
+        });
     }
 }

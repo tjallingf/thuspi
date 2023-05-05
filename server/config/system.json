@@ -1,5 +1,5 @@
 {
-    "webClient": {
+    "server": {
         "port": 4300
     },
     "flows": {

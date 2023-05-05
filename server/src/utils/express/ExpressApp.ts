@@ -12,7 +12,7 @@ import errorMiddleware from './middleware/apiErrorMiddleware';
 import defaultUserMiddleware from './middleware/defaultUserMiddleware';
 import apiMiddleware from './middleware/apiMiddleware';
 import { WebSocket, Database, Config, logger } from '../../zylax';
-import * as routeCollections from '../../routes/index';
+import * as routeCollections from '../../server/routes/index';
 
 const MySQLStore = ExpressMySQLSession(session);
 
@@ -38,12 +38,14 @@ export default class ExpressApp {
         this.app.use(cors());
 
         // Setup Passport.js middleware
-        this.app.use(session({
-            secret: passportWrapper.secret(),
-            resave: false,
-            saveUninitialized: false,
-            store: new MySQLStore({}, Database.connection)
-        }));
+        this.app.use(
+            session({
+                secret: passportWrapper.secret(),
+                resave: false,
+                saveUninitialized: false,
+                store: new MySQLStore({}, Database.connection),
+            }),
+        );
         this.app.use(passport.authenticate('session'));
 
         // Disable 'X-Powered-By' header
@@ -62,7 +64,7 @@ export default class ExpressApp {
         // Load routes
         Object.values(routeCollections).forEach((routeCollection: (...args: any[]) => any) => {
             routeCollection(this.app);
-        })
+        });
 
         // Setup error handler middelware
         this.app.use(errorMiddleware);

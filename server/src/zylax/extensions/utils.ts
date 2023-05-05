@@ -14,21 +14,20 @@ export function resolveExtensionFromStack() {
 
     const name = packageManifest.get('name');
     const extension = ExtensionController.find(name);
-    
+
     return extension;
 }
 
-export function resolveTemplate(module: Constructor<ExtensionModule>) {
-    return Object.getPrototypeOf(module);
+export function resolveTypeClass(moduleClass: Constructor<ExtensionModule>) {
+    return Object.getPrototypeOf(moduleClass);
 }
 
 export function getStack(): any {
     const trace = StackTrace.getSync();
-    
-    const stack = trace.find(stack => stack.fileName.startsWith(EXTENSIONS_DIR));
 
-    if(!stack) 
-        throw new Error('Failed to get extension call stack.');
+    const stack = trace.find((stack) => stack.fileName.startsWith(EXTENSIONS_DIR));
+
+    if (!stack) throw new Error('Failed to get extension call stack.');
 
     return stack;
 }

@@ -32,13 +32,13 @@ export default class ExtensionController extends Controller<Extension>() {
 
             // Activate the extensions.
             this.index().forEach((extension: Extension) => extension.activate());
-            
+
             // Resolve. At this point the extensions are
             // not yet activated, but they will be soon.
             return resolve();
-        })
+        });
     }
-    
+
     /**
      * Find an extension by name.
      * @param name - The name of the extension to find.
@@ -46,20 +46,42 @@ export default class ExtensionController extends Controller<Extension>() {
     static find(name: string): Extension {
         const extension = super.find(name);
 
-        if(extension instanceof Extension) 
-            return extension;
+        if (extension instanceof Extension) return extension;
 
         throw new ExtensionNotInstalledError(name);
     }
 
-    static findModule<T extends ExtensionModule>(moduleType: string, moduleId: string): Constructor<T> {       
-        if(!moduleId.includes('.'))
-            throw new Error(`Module id must contain a period (like 'extensionId.moduleTag'): '${moduleId}'.`);
-        
-        const [ extensionId, moduleTag ] = moduleId.split('.');
+    static findAllModulesOfType<T extends Constructor<ExtensionModule>>(typeClass: T): { [moduleSlug: string]: T } {
+        let foundModules = {};
+
+        this.index().forEach((extension) => {
+            if (!extension.modules || !extension.modules[typeClass.name]) return true;
+
+            Object.entries(extension.modules[typeClass.name]).forEach(([name, module]) => {
+                const moduleSlug = `${extension.id}.${name}`;
+                foundModules[moduleSlug] = module;
+            });
+        });
+
+        return foundModules;
+    }
+
+    static findModule<T extends Constructor<ExtensionModule>>(
+        moduleType: T,
+        moduleSlug: string,
+        method: string = 'getModule',
+    ): T {
+        if (!moduleSlug.includes('.'))
+            throw new Error(`Module id must contain a period (like 'extensionId.moduleName'): '${moduleSlug}'.`);
+
+        const [extensionId, moduleName] = moduleSlug.split('.');
         const ext = this.find(extensionId);
 
-        return ext.getModule<T>(moduleType, moduleTag) as Constructor<T>;
+        return ext[method]<T>(moduleType, moduleName);
+    }
+
+    static findModuleOrFail<T extends Constructor<ExtensionModule>>(moduleType: T, moduleSlug: string): T {
+        return this.findModule(moduleType, moduleSlug, 'getModuleOrFail');
     }
 
     // /**
@@ -70,7 +92,7 @@ export default class ExtensionController extends Controller<Extension>() {
     //     // Get a list of extension ids
     //     const extensionIds = globSync('*/manifest.json', { cwd: EXTENSIONS_DIR })
     //         .map(manifestFilepath => path.dirname(manifestFilepath));
-        
+
     //     return Object.fromEntries(extensionIds.map(extensionId => {
     //         const manifestLock = this.generateManifestLock(extensionId);
     //         return [ extensionId, manifestLock]
@@ -82,8 +104,8 @@ export default class ExtensionController extends Controller<Extension>() {
     //  * @param {string} extensionId The id of the extension to read the manifest file of.
     //  * @returns {object} The contents of the manifest file.
     //  */
-    // static readManifest(extensionId) {  
-    //     const filepath = path.join(this.getDir(extensionId), 'manifest.json'); 
+    // static readManifest(extensionId) {
+    //     const filepath = path.join(this.getDir(extensionId), 'manifest.json');
     //     return JSON.parse(fs.readFileSync(filepath, 'utf8'));
     // }
 
@@ -92,11 +114,11 @@ export default class ExtensionController extends Controller<Extension>() {
     //  * @param {string} extensionId The id of the extension to read the manifest lockfile of.
     //  * @returns {object} The contents of the manifest lockfile.
     //  */
-    // static readManifestLock(extensionId) {  
-    //     const filepath = path.join(this.getDir(extensionId), 'manifest-lock.json'); 
+    // static readManifestLock(extensionId) {
+    //     const filepath = path.join(this.getDir(extensionId), 'manifest-lock.json');
     //     return JSON.parse(fs.readFileSync(filepath, 'utf8'));
     // }
-    
+
     // /**
     //  * Generates a manifest lockfile for an extension.
     //  * @param {string} extensionId The id of the extension to generate the manifest lockfile for.
@@ -115,7 +137,7 @@ export default class ExtensionController extends Controller<Extension>() {
 
     //     // Contents of the manifest
     //     const manifest = this.readManifest(extensionId);
-        
+
     //     // Variable for storing the data to write to the manifest lockfile
     //     let data = { lockfileVersion: lockfileVersion };
 
@@ -123,7 +145,7 @@ export default class ExtensionController extends Controller<Extension>() {
     //         case 1:
     //             data = _.pick(manifest, 'name', 'author');
     //             data.modules = {};
-                
+
     //             modules.forEach(filepath => {
     //                 const parsed = path.parse(filepath);
 

@@ -1,12 +1,10 @@
 import Model from '../lib/Model';
 
-export type ExtensionModuleTag = string;
+export type ExtensionModuleName = string;
 
 class ExtensionModule extends Model {
-    constructor(...args: any[]) {
-        super(null, {
-            enableLogger: true
-        });
+    constructor() {
+        super(null);
     }
 }
 

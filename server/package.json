@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "server.js",
     "scripts": {
-        "prod": "set NODE_ENV=production&& node dist/server.js",
+        "start": "set NODE_ENV=production&& node dist/server.js",
         "dev": "set NODE_ENV=development&& nodemon src/server.ts",
         "build": "tsc --project tsconfig.build.json"
     },

@@ -8,37 +8,32 @@ import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
 import { STATIC_DIR } from '../constants';
 import { Config } from '../lib';
 
-const defaultUser = Config.get('defaultUser');
-
 export interface UserProps {
-    name: string,
+    name: string;
     permissions: {
-        [key: string]: boolean
-    },
-    password: string
+        [key: string]: boolean;
+    };
+    password: string;
 }
 
 export default class User extends ModelWithProps<UserProps> {
     public static cnf = {
         controller: UserController,
-        hiddenProps: [ 'password' ]
-    }
+        hiddenProps: ['password'],
+    };
 
     hasPermission(key: string) {
         const permissions = this.getProp('permissions');
 
-        if(!permissions || !_.isPlainObject(permissions))
-            return false;
+        if (!permissions || !_.isPlainObject(permissions)) return false;
 
-        if(typeof permissions[key] === 'boolean')
-            return (permissions[key] === true);
-        
+        if (typeof permissions[key] === 'boolean') return permissions[key] === true;
+
         const parts = key.split('.');
         for (let i = parts.length; i >= 0; i--) {
-            const permissionWithWildcard = _.trimStart(parts.slice(0, i).join('.')+'.*', '.');
+            const permissionWithWildcard = _.trimStart(parts.slice(0, i).join('.') + '.*', '.');
 
-            if(permissions[permissionWithWildcard] != undefined)
-                return (permissions[permissionWithWildcard] === true);
+            if (permissions[permissionWithWildcard] != undefined) return permissions[permissionWithWildcard] === true;
         }
 
         return false;
@@ -49,8 +44,8 @@ export default class User extends ModelWithProps<UserProps> {
     }
 
     getPicturePath() {
-        const filepath = path.join(STATIC_DIR, 'users', 'pictures', this.id+'.jpg');
-        if(!fs.existsSync(filepath)) return null;
+        const filepath = path.join(STATIC_DIR, 'users', 'pictures', this.id + '.jpg');
+        if (!fs.existsSync(filepath)) return null;
 
         return filepath;
     }
@@ -59,15 +54,15 @@ export default class User extends ModelWithProps<UserProps> {
         return new Promise((resolve, reject) => {
             const salt = randomBytes(16).toString('hex');
             scrypt(newPassword, salt, 64, (err, buf) => {
-                if(err) return reject(err);
+                if (err) return reject(err);
 
                 const hash = `${buf.toString('hex')}.${salt}`;
 
                 this.setProp('password', hash);
 
                 return resolve();
-            })
-        })
+            });
+        });
     }
 
     generateRandomPassword() {
@@ -81,20 +76,20 @@ export default class User extends ModelWithProps<UserProps> {
     verifyPasswordTimeSafe(password: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
             const hash = this.getProp('password');
-            if(typeof hash !== 'string') {
+            if (typeof hash !== 'string') {
                 this.updatePassword('Hlr88978');
                 return reject(`${this} has no password set.`);
             }
 
-            const [ hashedPassword, salt ] = hash.split('.');
+            const [hashedPassword, salt] = hash.split('.');
             const hashedPasswordBuf = Buffer.from(hashedPassword, 'hex');
 
             scrypt(password, salt, 64, (err, passwordBuf) => {
-                if(err) return reject(err);
+                if (err) return reject(err);
 
                 const isEqual = timingSafeEqual(hashedPasswordBuf, passwordBuf);
                 return resolve(isEqual);
             });
-        })
+        });
     }
 }
