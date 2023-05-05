@@ -34,3 +34,6 @@ server/storage/devices/**
 server/storage/extensions/**
 server/config/secret.json
 server/config/flows.json
+
+# Legacy files
+LEGACY-*.*
