@@ -1,10 +1,10 @@
 {
     "name": "server",
     "version": "1.0.0",
-    "main": "server.js",
+    "main": "app.js",
     "scripts": {
-        "start": "set NODE_ENV=production&& node dist/server.js",
-        "dev": "set NODE_ENV=development&& nodemon src/server.ts",
+        "start": "set NODE_ENV=production&& node dist/app.js",
+        "dev": "set NODE_ENV=development&& nodemon src/app.ts",
         "build": "tsc --project tsconfig.build.json"
     },
     "dependencies": {
@@ -40,6 +40,7 @@
         "@types/express": "^4.17.17",
         "@types/lodash": "^4.14.194",
         "@types/node": "^18.15.11",
+        "@types/restify": "^8.5.7",
         "jest": "^29.1.1",
         "postcss": "^8.4.16",
         "postcss-loader": "^7.0.1",
