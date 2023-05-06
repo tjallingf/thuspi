@@ -32,7 +32,6 @@
         "passport-local": "^1.0.0",
         "passport-local-authenticate": "^1.2.0",
         "randomstring": "^1.2.3",
-        "restify": "^11.1.0",
         "socket.io": "^4.6.0",
         "stacktrace-js": "^2.0.2",
         "uuid": "^9.0.0"
