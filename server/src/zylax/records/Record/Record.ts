@@ -36,11 +36,11 @@ export default class Record {
         this._date = date;
     }
 
-    setField(field: string, value: number) {
+    setValue(field: string, value: number) {
         this._fields[field] = value;
     }
 
-    setFields(fields: Fields) {
+    setValues(fields: Fields) {
         _.defaults(this._fields, fields);
     }
 
