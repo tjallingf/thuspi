@@ -4,28 +4,31 @@ import { PromiseAllObject } from '../utils/Promise';
 import * as _ from 'lodash';
 import Controller from './Controller';
 
-interface ModelWithPropsConfig extends ModelConfig {
-    dynamicProps?: string[],
-    hiddenProps?: string[],
-    controller: any
+interface ModelWithPropsConfig<TProps extends Object = Object> extends ModelConfig {
+    dynamicProps?: string[];
+    hiddenProps?: string[];
+    controller: any;
+    propsDefaults: TProps;
 }
 
-class ModelWithProps<TProps extends {} = {}> extends Model {
+abstract class ModelWithProps<TProps extends Object = Object> extends Model {
     static cnf: ModelWithPropsConfig;
     // @ts-ignore
-    cnf(): ModelWithPropsConfig { return this.constructor.cnf; };
+    cnf(): ModelWithPropsConfig {
+        return this.constructor.cnf;
+    }
 
     protected props: TProps = {} as TProps;
 
     constructor(id: string, props: TProps) {
         super(id);
 
-        this.props = props;
+        this.props = _.defaultsDeep(props, this.cnf().propsDefaults);
 
         this.init();
     }
 
-    protected init() {};
+    protected init() {}
 
     /**
      * Get all properties of the model.
@@ -34,7 +37,7 @@ class ModelWithProps<TProps extends {} = {}> extends Model {
     getProps(includeHidden = true): TProps {
         let props = this.props;
 
-        if(!includeHidden && this.cnf().hiddenProps?.length) {
+        if (!includeHidden && this.cnf().hiddenProps?.length) {
             props = _.omit(props, this.cnf().hiddenProps);
         }
 
@@ -48,18 +51,18 @@ class ModelWithProps<TProps extends {} = {}> extends Model {
     setProps(newProps: TProps) {
         // Update properties recursively
         this.props = _.defaultsDeep(newProps, this.props);
-        
+
         // Update the controller
         const controller = this.cnf().controller;
-        if(this.id && typeof controller.update === 'function') {
+        if (this.id && typeof controller.update === 'function') {
             controller.update(this.id, this);
         }
 
         return this;
     }
-    
+
     /**
-     * Get a specific property by keypath. 
+     * Get a specific property by keypath.
      * @param keypath The keypath of the property to get.
      */
     getProp<TKey extends keyof TProps>(keypath: TKey): TProps[TKey];
@@ -77,23 +80,23 @@ class ModelWithProps<TProps extends {} = {}> extends Model {
     setProp(keypath: string, value: any): this;
     setProp(keypath: string, value: any) {
         this.setProps(_.set({} as TProps, keypath, value));
-        
+
         return this;
     }
 
     async addDynamicProps(props: TProps): Promise<Object> {
-        if(this.cnf().dynamicProps?.length) {
+        if (this.cnf().dynamicProps?.length) {
             const promises = {};
 
-            this.cnf().dynamicProps.forEach(async key => {
+            this.cnf().dynamicProps.forEach(async (key) => {
                 const getValueFunc = this[`prop_${key}`];
-                if(typeof getValueFunc !== 'function') {
+                if (typeof getValueFunc !== 'function') {
                     logger.warn(`Method 'prop_${key}()' does not exist on model ${this.constructor.name}.`);
                     return true;
                 }
 
                 let value = getValueFunc.apply(this);
-                if(value instanceof Promise) {
+                if (value instanceof Promise) {
                     promises[key] = value;
                 } else {
                     props[key] = value;
