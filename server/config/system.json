@@ -2,6 +2,9 @@
     "server": {
         "port": 4300
     },
+    "users": {
+        "defaultUser": "__DEFAULT__"
+    },
     "flows": {
         "interval": 60
     },
