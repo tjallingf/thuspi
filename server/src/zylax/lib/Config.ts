@@ -8,16 +8,22 @@ export default class Config {
     private static cache = {};
 
     static get(keypath: string): any {
+        const value = this.getOrFail(keypath);
+
+        if (typeof value === 'undefined') {
+            throw new Error(`Config entry '${keypath}' is undefined.`);
+        }
+
+        return value;
+    }
+
+    static getOrFail(keypath: string) {
         const filename = keypath.split('.')[0];
 
         const rest = keypath.split('.').slice(1);
         const data = this.getFile(filename);
 
         const value = rest.length ? _.get(data, rest) : data;
-        if (typeof value === 'undefined') {
-            throw new Error(`Config entry '${keypath}' is undefined.`);
-        }
-
         return value;
     }
 
