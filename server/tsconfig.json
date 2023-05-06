@@ -1,9 +1,5 @@
 {
-    "include": [
-        "src/**/*.d.ts",
-        "src/**/*.ts",
-        "src/**/*.js"
-    ],
+    "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js"],
     "ts-node": {
         "transpileOnly": true
     },
@@ -11,9 +7,7 @@
         "types": [],
         "moduleResolution": "node",
         "target": "es2020",
-        "lib": [
-            "es2020"
-        ],
+        "lib": ["es2020"],
         "outDir": "./dist",
         "module": "commonjs",
         "skipLibCheck": true,
@@ -25,9 +19,8 @@
         "baseUrl": "./",
         "rootDir": "./src",
         "paths": {
-            "@/*": [
-                "./src/*"
-            ]
+            "@/*": ["./src/*"],
+            "#/zylax": ["./src/zylax/extension-api/index"]
         }
     }
 }

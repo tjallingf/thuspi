@@ -1,51 +1,74 @@
-import { Database, devices, Config, extensions, flows, logger, users, localization } from './zylax';
-import ExpressApp from './utils/express/ExpressApp';
-import fs from 'fs';
-import path from 'path';
-import { ROOT_DIR } from './zylax/constants';
-import Flow from './zylax/flows/Flow';
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { DeviceController } from './zylax/devices';
+import ip from 'ip';
+import express, { Express } from 'express';
+require('express-async-errors');
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import cors from 'cors';
+import session from 'express-session';
+import passport from 'passport';
+import ExpressMySQLSession from 'express-mysql-session';
+import passportService from './server/services/passport';
+// import errorMiddleware from './middleware/apiErrorMiddleware';
+import defaultUserMiddleware from './server/middleware/defaultUserMiddleware';
+// import apiMiddleware from './middleware/apiMiddleware';
+import { WebSocket, Database, Config, logger } from './zylax';
+import * as routeCollections from './routes';
 
-// Extend day.js
-dayjs.extend(customParseFormat);
+const MySQLStore = ExpressMySQLSession(session);
 
-(async function() {
-    
-    // Check if the server has root privileges
-    if(typeof process.getuid == 'function' && process.getuid() !== 0) {
-        throw new Error('The server must be started with root privileges.');
-    }
+export function start() {
+    const server = express();
 
-    // Force NODE_ENV to be either 'development' or 'production'
-    process.env.NODE_ENV = (process.env.NODE_ENV === 'development' || process.env.npm_lifecycle_script?.endsWith?.('.ts'))
-        ? 'development' 
-        : 'production';
+    // Parse cookies
+    server.use(cookieParser());
 
-    // Check whether the server is running in development or production
-    logger.info(`Starting in ${process.env.NODE_ENV} mode.`);
+    // Compress requests
+    server.use(compression());
 
-    // Connect to the database
-    Database.connect(Config.get('secret.database'));
+    // Setup static directory
+    server.use(express.static('public'));
 
-    (async () => {
-        // Load users
-        await users.UserController.load();
+    // Parse JSON bodies
+    server.use(express.json());
 
-        // Load extensions
-        await extensions.ExtensionController.load();
+    // Allow CORS
+    server.use(cors());
 
-        // Load languages
-        localization.LocaleController.load();
+    // Setup Passport.js middleware
+    server.use(
+        session({
+            secret: passportService.getOrCreateSecret(),
+            resave: false,
+            saveUninitialized: false,
+            store: new MySQLStore({}, Database.connection),
+        }),
+    );
+    server.use(passport.authenticate('session'));
 
-        // Load devices
-        await devices.DeviceController.load();
+    // Disable 'X-Powered-By' header
+    server.disable('x-powered-by');
 
-        // Load flows
-        await flows.FlowController.load();
+    server.use(defaultUserMiddleware);
 
-        ExpressApp.setup();
-        ExpressApp.listen();
-    })();
-})();
+    // // Setup API middleware
+    // server.use(apiMiddleware);
+
+    // Initialize Passport.js
+    passportService.initialize();
+
+    // Load routes
+    Object.values(routeCollections).forEach((routeCollection: (...args: any[]) => any) => {
+        routeCollection(server);
+    });
+
+    // // Setup error handler middelware
+    // server.use(errorMiddleware);
+    // Get web port
+    const serverPort = Config.get('system.server.port');
+
+    const serverWithWebsocket = WebSocket.setup(server);
+
+    serverWithWebsocket.listen(serverPort, () => {
+        logger.info(`Web client listening at http://${ip.address()}:${serverPort}.`);
+    });
+}

@@ -1,33 +1,34 @@
 export interface DeviceStateDisplay {
-    buttons?: DeviceStateDisplayButton[],
-    tile?: DeviceStateDisplayTile,
-    recording?: DeviceStateDisplayRecording
+    buttons?: DeviceStateDisplayButton[];
+    tile?: DeviceStateDisplayTile;
+    recording?: DeviceStateDisplayRecording;
 }
 
-export interface DeviceStateDisplay {}
-
 export interface DeviceStateDisplayButton extends DeviceStateDisplay {
-    name: string,
-    icon: string,
-    color?: string,
-    isActive?: boolean
+    icon: string;
+    input: string;
+    color?: string;
+    isActive?: boolean;
 }
 
 export interface DeviceStateDisplayTile extends DeviceStateDisplay {
-    title: string,
-    thumbnailSrc?: string,
-    description?: string
+    title: string;
+    icon: string;
+    thumbnailSrc?: string;
+    description?: string;
 }
 
 export interface DeviceStateDisplayRecording extends DeviceStateDisplay {
-    field: string
+    field: string;
 }
 
 export default class DeviceState {
     _isActive: boolean;
     _display: DeviceStateDisplay = {};
 
-    get isActive() { return this._isActive; }
+    get isActive() {
+        return this._isActive;
+    }
 
     /**
      * Set the active state.
@@ -56,7 +57,7 @@ export default class DeviceState {
     toJSON() {
         return {
             isActive: this._isActive,
-            display: this._display
-        }
+            display: this._display,
+        };
     }
 }

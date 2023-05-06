@@ -1,4 +1,4 @@
-import ControllerDatabase from '../lib/ControllerDatabase';
+import ControllerDatabase from '../lib/DatabaseController';
 import Flow from './Flow';
 
 export default class FlowController extends ControllerDatabase<Flow>() {

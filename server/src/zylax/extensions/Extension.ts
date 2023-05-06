@@ -2,26 +2,24 @@ import Model, { ModelConfig } from '../lib/Model';
 import * as _ from 'lodash';
 import * as path from 'path';
 import { globSync } from 'glob';
-import ExtensionModule, { type ExtensionModuleTag } from './ExtensionModule';
+import ExtensionModule, { type ExtensionModuleName } from './ExtensionModule';
 import type Manifest from '../utils/Manifest';
 import fs from 'fs';
 import { Constructor } from '../types';
 import ExtensionModuleNotRegisteredError from '../errors/ExtensionModuleNotRegisteredError';
-import { resolveTemplate } from './utils';
+import { resolveTypeClass } from './utils';
 
 const GLOB_PATTERN_MODULES = 'modules/**/*/index.js';
-const GLOB_PATTERN_ASSETS  = [
-    'assets/language/*.json'
-];
+const GLOB_PATTERN_ASSETS = ['assets/language/*.json'];
 
 export interface IExtensionModules {
     [key: string]: {
-        [key: string]: Constructor<ExtensionModule>
-    }
+        [key: string]: any & Constructor<ExtensionModule>;
+    };
 }
 
 export interface IExtensionLib {
-    activate: () => void
+    activate: () => void;
 }
 
 class Extension extends Model {
@@ -34,9 +32,7 @@ class Extension extends Model {
     private loadingModules: string[] = [];
 
     constructor(manifest: Manifest, dir: string) {
-        super(manifest.get('name'), {
-            enableLogger: true
-        });
+        super(manifest.get('name'));
 
         this.manifest = manifest;
         this.dir = dir;
@@ -48,8 +44,8 @@ class Extension extends Model {
     //  * Get a module from the extension.
     //  * @param moduleType - The type of extension module.
     //  * @param id - The id of the module.
-    //  * @param throwOnFail - 
-    //  * @returns 
+    //  * @param throwOnFail -
+    //  * @returns
     //  */
     // getModule(moduleType, id, throwOnFail = true) {
     //     // Check if the module exists
@@ -58,7 +54,7 @@ class Extension extends Model {
     //             throw new ExtensionModuleNotFoundError(this, moduleType, id);
     //         return null;
     //     }
-        
+
     //     // Return the module
     //     return this.modules[moduleType][id];
     // }
@@ -75,64 +71,54 @@ class Extension extends Model {
 
     /**
      * Register a module.
-     * @param module - The module to register.
+     * @param moduleClass - The module to register.
      */
-    registerModule(tag: string, module: Constructor<ExtensionModule>) {
-        const template = resolveTemplate(module);
-        
-        this.modules[template.name] = this.modules[template.name] || {};
+    registerModule(
+        moduleName: string,
+        moduleClass: Constructor<ExtensionModule>,
+        typeClass: Constructor<ExtensionModule>,
+    ) {
+        this.modules[typeClass.name] = this.modules[typeClass.name] || {};
+        const moduleSlug = `${this.id}.${moduleName}`;
 
-        // If a module of this type and with this tag already exists, log an error.
-        if(this.modules[template.name][tag]?.prototype instanceof ExtensionModule) {
-            this.logger.error(`${template.name} '${this.id}.${tag}' was already registered.`);
+        // If a module of this type and with this slug already exists, log an error.
+        if (this.modules[typeClass.name][moduleName]?.prototype instanceof ExtensionModule) {
+            this.logger.error(`${typeClass.name} '${moduleSlug}' was already registered.`);
             return;
         }
 
-        this.modules[template.name][tag] = module;
+        this.modules[typeClass.name][moduleName] = moduleClass;
 
-        this.logger.debug(`Registered ${template.name} '${this.id}.${tag}'.`);
-    }
-
-    /**
-     * Check whether the extension has a specific module.
-     * @param moduleType - The type of the module to find.
-     * @param moduleTag - The tag of the module to find.
-     * @returns Whether the extension has the module.
-     */
-    hasFile(moduleType: string, moduleTag: ExtensionModuleTag) {
-        return (this.getModuleSafe(moduleType, moduleTag) instanceof ExtensionModule);
+        this.logger.debug(`Registered ${typeClass.name} '${moduleSlug}'.`);
     }
 
     /**
      * Get a module from the extension.
-     * @param moduleType - The type of the module to find.
-     * @param moduleTag - The tag of the module to find.
+     * @param type - The type of the module to find.
+     * @param name - The name of the module to find.
      * @returns The module.
      */
-    getModule<T>(moduleType: string, moduleTag: ExtensionModuleTag): Constructor<T> {
-        const module = this.getModuleSafe<T>(moduleType, moduleTag);
+    getModule<T extends Constructor<ExtensionModule>>(type: T, name: ExtensionModuleName): T {
+        const module = this.getModuleOrFail(type, name);
 
-        if(module?.prototype instanceof ExtensionModule)
-            return module;
+        if (module?.prototype instanceof ExtensionModule) return module;
 
-        throw new ExtensionModuleNotRegisteredError(`${moduleType} '${this.id}.${moduleTag}' is not registered.`);
+        throw new ExtensionModuleNotRegisteredError(`${type.name} '${this.id}.${name}' is not registered.`);
     }
 
     /**
      * Get a module from the extension without throwing an error if it can not be found.
-     * @param moduleType - The type of the module to find.
-     * @param moduleTag - The tag of the module to find.
+     * @param type - The type of the module to find.
+     * @param name - The name of the module to find.
      * @returns The module.
      */
-    getModuleSafe<T>(moduleType: string, moduleTag: ExtensionModuleTag): Constructor<T> {
-        if(!_.isPlainObject(this.modules[moduleType]))
-            return null;
+    getModuleOrFail<T extends Constructor<ExtensionModule>>(type: T, name: ExtensionModuleName): T {
+        if (!_.isPlainObject(this.modules[type.name])) return null;
 
-        const module = this.modules[moduleType][moduleTag];
-        if(!(module?.prototype instanceof ExtensionModule))
-            return null;
+        const module = this.modules[type.name][name];
+        if (!(module?.prototype instanceof ExtensionModule)) return null;
 
-        return module as Constructor<T>;
+        return module;
     }
 
     /**
@@ -157,14 +143,14 @@ class Extension extends Model {
         return new Promise<void>((resolve, reject) => {
             const mainFilepath = this.getMainFilepath();
 
-            if(!fs.existsSync(mainFilepath)) {
+            if (!fs.existsSync(mainFilepath)) {
                 return reject(new Error(`Cannot find main file, looked for '${mainFilepath}'.`));
             }
 
             this.lib = require(mainFilepath);
 
             // Call the 'activate()' function
-            if(typeof this.lib?.activate === 'function') {
+            if (typeof this.lib?.activate === 'function') {
                 this.lib.activate();
                 this.logger.info('Activated succesfully.');
             } else {
@@ -172,25 +158,25 @@ class Extension extends Model {
             }
 
             return resolve();
-        })
+        });
     }
 
     private getMainFilepath() {
         let mainFilepath: string;
-        
-        if(process.env.NODE_ENV === 'development') {
+
+        if (process.env.NODE_ENV === 'development') {
             mainFilepath = path.resolve(this.dir, 'src/extension.ts');
-            if(fs.existsSync(mainFilepath)) return mainFilepath;
+            if (fs.existsSync(mainFilepath)) return mainFilepath;
         }
 
-        if(typeof this.manifest.get('main') === 'string') {
+        if (typeof this.manifest.get('main') === 'string') {
             mainFilepath = path.resolve(this.dir, this.manifest.get('main'));
-            if(fs.existsSync(mainFilepath)) return mainFilepath;
+            if (fs.existsSync(mainFilepath)) return mainFilepath;
         }
 
         mainFilepath = path.resolve(this.dir, 'dist/extension.js');
-        if(fs.existsSync(mainFilepath)) return mainFilepath;
-        
+        if (fs.existsSync(mainFilepath)) return mainFilepath;
+
         return null;
     }
 }

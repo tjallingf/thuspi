@@ -1,1 +1,1 @@
-export * from './indexExtension';
+export * from '../extension-api/devices';

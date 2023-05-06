@@ -8,12 +8,23 @@ export default class Config {
     private static cache = {};
 
     static get(keypath: string): any {
+        const value = this.getOrFail(keypath);
+
+        if (typeof value === 'undefined') {
+            throw new Error(`Config entry '${keypath}' is undefined.`);
+        }
+
+        return value;
+    }
+
+    static getOrFail(keypath: string) {
         const filename = keypath.split('.')[0];
 
         const rest = keypath.split('.').slice(1);
         const data = this.getFile(filename);
 
-        return (rest.length ? _.get(data, rest) : data);
+        const value = rest.length ? _.get(data, rest) : data;
+        return value;
     }
 
     static set(keypath: string, value: any) {
@@ -21,13 +32,13 @@ export default class Config {
     }
 
     private static getFile(filename: string) {
-        const filepath = path.join(CONFIG_DIR, filename+'.json');
+        const filepath = path.join(CONFIG_DIR, filename + '.json');
 
-        if(!this.cache[filepath]) {
+        if (!this.cache[filepath]) {
             try {
                 const data = JSON.parse(fs.readFileSync(filepath, 'utf8'));
                 this.cache[filepath] = data;
-            } catch(err) {
+            } catch (err) {
                 logger.error(err);
             }
         }

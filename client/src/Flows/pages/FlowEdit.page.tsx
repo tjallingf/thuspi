@@ -1,15 +1,16 @@
 import { Page } from '@tjallingf/react-utils';
-import FlowWorkspace from '../components/FlowWorkspace/FlowWorkspace';
 import { useParams } from 'react-router-dom';
+import { lazy } from 'react';
+const FlowBlocklyEditor = lazy(() => import('../components/FlowBlocklyEditor'));
 
 const FlowEdit: React.FunctionComponent = () => {
-  const { id } = useParams();
+    const { id } = useParams();
 
-  return (
-    <Page id="FlowEdit">
-      <FlowWorkspace id={parseFloat(id)} />
-    </Page>
-  );
+    return (
+        <Page id="FlowEdit">
+            <FlowBlocklyEditor />
+        </Page>
+    );
 };
 
 export default FlowEdit;
