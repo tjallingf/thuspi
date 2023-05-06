@@ -1,19 +1,26 @@
 import _ from 'lodash';
-import api from '@/utils/express/middleware/api';
+import apiRoute from '@/server/apiRoute';
 import { UserController, User } from '@/zylax/users';
+import { Server } from '@/server/types';
 
-export default (app) => {
-    app.get('/api/users', api(User, async (api, req) => {
-        await api.withCollection(api.getCollection());
-    }));
+export default (server: Server) => {
+    server.get(
+        '/api/users',
+        apiRoute(User, async (route, req, res) => {
+            await route.respondWithCollection(route.getCollection());
+        }),
+    );
 
-    app.get('/api/users/:id', api(User, async (api, req) => {
-        api.setPermissionChecker((permission, user) => {
-            if(req.user.id === user.id) return true;
-            return req.user.hasPermission(permission);
-        })
+    server.get(
+        '/api/users/:id',
+        apiRoute(User, async (route, req, res) => {
+            route.setPermissionHandler((permission, user) => {
+                if (req.user.id === user.id) return true;
+                return req.user.hasPermission(permission);
+            });
 
-        const userId = req.params.id === 'me' ? req.user.id : req.params.id;
-        await api.withResource(api.getResource(userId));
-    }));
-}
+            const userId = req.params.id === 'me' ? req.user.id : req.params.id;
+            await route.respondWithDocument(route.getDocument(userId));
+        }),
+    );
+};

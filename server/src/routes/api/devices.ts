@@ -1,34 +1,49 @@
 import _ from 'lodash';
 import { devices } from '../../zylax';
-import api from '../../utils/express/middleware/api';
 import { Device, DeviceController } from '@/zylax/devices';
-import dayjs from 'dayjs';
+import apiRoute from '@/server/apiRoute';
+import { Server } from '@/server/types';
 
-export default (app) => {
-    app.get('/api/devices', api(Device, async (api, req) => {
-        await api.withCollection(api.getCollection());
-    }))
+export default (server: Server) => {
+    server.get(
+        '/api/devices',
+        apiRoute(Device, async (route, req) => {
+            await route.respondWithCollection(route.getCollection());
+        }),
+    );
 
-    app.get('/api/devices/:id', api(Device, async (api, req) => {
-        await api.withResource(api.getResource(req.params.id));
-    }))
+    server.get(
+        '/api/devices/:id',
+        apiRoute(Device, async (route, req) => {
+            await route.respondWithDocument(route.getDocument(req.params.id));
+        }),
+    );
 
-    app.get('/api/devices/:id/records', api(Device, async (api, req) => {
-        const device = api.getResource(req.params.id);
+    server.get(
+        '/api/devices/:id/records',
+        apiRoute(Device, async (route, req) => {
+            const device = route.getDocument(req.params.id);
 
-        await api.querySwitch(
-            [{ top: 'number' }, async ({ top }: { top: number }) => {
-                api.withResult(await device.records.readTop(top));
-            }],
-            [{ from: 'date', to: 'date' }, async ({ from, to }: { from: Date, to: Date }) => {
-                api.withResult(await device.records.readPeriod(from, to));
-            }]
-        )
+            route.setAggregation({
+                config: device.records.config.get(),
+            });
 
-        api.withAggregation({
-            config: device.records.config.get()
-        });
-    }))
+            await route.querySwitch(
+                [
+                    { top: 'number' },
+                    async ({ top }: { top: number }) => {
+                        route.respondWith(await device.records.readTop(top));
+                    },
+                ],
+                [
+                    { from: 'date', to: 'date' },
+                    async ({ from, to }: { from: Date; to: Date }) => {
+                        route.respondWith(await device.records.readPeriod(from, to));
+                    },
+                ],
+            );
+        }),
+    );
 
     // // For updating the properties of a device
     // app.patch('/api/devices/:id', async (req, res, next) => {
@@ -52,13 +67,16 @@ export default (app) => {
     // })
 
     // Set the value of an input of a device
-    app.patch('/api/devices/:id/inputs', api(Device, async (res, req) => {
-        const device = res.getResource(req.params.id);
+    server.patch(
+        '/api/devices/:id/inputs',
+        apiRoute(Device, async (route, req) => {
+            const device = route.getDocument(req.params.id);
 
-        Promise.all(_.map(req.body.inputs, 
-            ({ name, value }) => device.handleInput(name, value)))
-        .then(async () => res.withResource(device))
-    }))
+            await Promise.all(_.map(req.body.inputs, ({ name, value }) => device.handleInput(name, value))).then(
+                async () => route.respondWithDocument(device),
+            );
+        }),
+    );
 
     // // // For calling the search handler of a device
     // // app.get('/api/devices/:id/search', async (req, res, next) => {
@@ -75,9 +93,9 @@ export default (app) => {
     // //         results
     // //     });
     // // })
-    
+
     // // Get the state of a devices
-    // app.get('/api/devices/:id/state', 
+    // app.get('/api/devices/:id/state',
     //     api({ permission: 'devices.{id}.view' }),
     //     async (req, res, next) => {
     //     if(!req.user.hasPermission(`devices.read.${req.params['id']}`))
@@ -91,6 +109,6 @@ export default (app) => {
 
     // // Get the recordings of a device
     // app.get('/api/devices/:id/state', async (req, res, next) => {
-        
+
     // })
-}
+};

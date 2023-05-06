@@ -1,10 +1,14 @@
-import api from '@/utils/express/middleware/api';
+import apiRoute from '@/server/apiRoute';
+import { Server } from '@/server/types';
 import { Language } from '@/zylax/localization';
 import LanguageController from '@/zylax/localization/LanguageController';
 
-export default (app) => {
-    app.get('/api/languages/:id', api(Language, async (api, req) => {
-        api.setPermissionChecker(() => true);
-        await api.withResource(api.getResource(req.params.id));
-    }))
-}
+export default (server: Server) => {
+    server.get(
+        '/api/languages/:id',
+        apiRoute(Language, async (route, req) => {
+            route.setPermissionHandler(() => true);
+            await route.respondWithDocument(route.getDocument(req.params.id));
+        }),
+    );
+};

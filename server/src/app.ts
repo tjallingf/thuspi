@@ -1,7 +1,12 @@
+import { Database, devices, Config, extensions, flows, logger, users, localization } from './zylax';
+import fs from 'fs';
+import path from 'path';
+import { ROOT_DIR } from './zylax/constants';
+import Flow from './zylax/flows/Flow';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { DeviceController } from './zylax/devices';
 import * as server from './server';
-import { logger } from './zylax';
 
 // Extend day.js
 dayjs.extend(customParseFormat);
@@ -21,7 +26,15 @@ dayjs.extend(customParseFormat);
     // Check whether the server is running in development or production
     logger.info(`Starting in ${process.env.NODE_ENV} mode.`);
 
-    // // Connect to the database
-    // Database.connect(Config.get('secret.database'));
+    // Connect to the database
+    Database.connect(Config.get('secret.database'));
+
+    // Load all entities
+    await users.UserController.load();
+    await extensions.ExtensionController.load();
+    localization.LocaleController.load();
+    await devices.DeviceController.load();
+    await flows.FlowController.load();
+
     server.start();
 })();

@@ -1,56 +1,51 @@
-import NotFoundError from '@/errors/api/NotFoundError';
 import { Constructor } from '@/zylax/types';
 import _ from 'lodash';
 import Model from '@/zylax/lib/Model';
 import ApiError from '@/errors/api/ApiError';
-import { Request } from '../types';
+import { RequestHandler } from 'express';
+import { Request } from './types';
 import { NextFunction, Response } from 'express';
-import PermissionError from '@/errors/api/PermissionError';
 import dayjs from 'dayjs';
 import ModelWithProps from '@/zylax/lib/ModelWithProps';
 
 export type ApiModel = Constructor<ModelWithProps> | Constructor<Model>;
 
-export type ApiResponsePermissionHandler<T extends ApiModel> = (permission: string, model: InstanceType<T>) => boolean;
-export type ApiResponseFindHandler<T extends ApiModel> = (id: string & number) => InstanceType<T>;
+export type ApiRoutePermissionHandler<T extends ApiModel> = (permission: string, model: InstanceType<T>) => boolean;
+export type ApiRouteFindHandler<T extends ApiModel> = (id: string & number) => InstanceType<T>;
+export type ApiRouteHandler<T extends ApiModel> = (route: ApiRoute<T>, req: Request, res: Response) => any;
 
-export interface ApiResponseOptions<T extends ApiModel> {
-    permissionHandler?: ApiResponsePermissionHandler<T>;
+export interface ApiRouteOptions<T extends ApiModel> {
+    permissionHandler?: ApiRoutePermissionHandler<T>;
     findHandler?: (id: string) => InstanceType<T>;
 }
 
-export default function api<T extends ApiModel>(model: T, handler: (res: ApiResponse<T>, req: Request) => any) {
+export default function apiRoute<T extends ApiModel>(model: T, handler: ApiRouteHandler<T>) {
     return async function (req, res, next) {
-        const api = new ApiResponse<T>(model, req, res, next);
+        const route = new ApiRoute<T>(model, req, res, next);
 
         try {
-            handler(api, req)
+            await handler(route, req, res)
                 .then(() => {
-                    res.json(api.resBody);
+                    res.json(route.resBody);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    route.handleError(err);
                 });
         } catch (err) {
-            if (!(err instanceof ApiError)) {
-                console.error(err);
-            }
-
-            api.withError(err);
+            route.handleError(err);
         }
     };
 }
 
-export class ApiResponse<T extends ApiModel> {
+export class ApiRoute<T extends ApiModel> {
     private req: Request;
     private reqUrl: URL;
     private res: Response;
     private next: NextFunction;
-    private options: ApiResponseOptions<T> = {};
+    private options: ApiRouteOptions<T> = {};
 
     public resBody = {
-        error: undefined,
-        result: undefined,
+        result: {},
         aggregation: {},
     };
 
@@ -65,30 +60,30 @@ export class ApiResponse<T extends ApiModel> {
         this.next = next;
     }
 
-    getResource(resourceId: string): InstanceType<T> {
-        let resource: InstanceType<T>;
+    getDocument(documentId: string): InstanceType<T> {
+        let document: InstanceType<T>;
         if (typeof this.options.findHandler === 'function') {
-            resource = this.options.findHandler(resourceId);
+            document = this.options.findHandler(documentId);
         } else if (typeof this.controller?.find === 'function') {
-            resource = this.controller.find(resourceId);
+            document = this.controller.find(documentId);
         }
 
-        if (!resource) {
-            throw new NotFoundError(resourceId);
+        if (!document) {
+            throw new ApiError('NotFoundError', 'Document not found', 404, { documentId });
         }
 
-        const [hasPermission, permission] = this.hasPermissionForResource(resource);
+        const [hasPermission, permission] = this.hasPermissionForDocument(document);
         if (!hasPermission) {
-            throw new PermissionError(permission);
+            throw new ApiError('PermissionError', 'No permission to access this document.', 401, { permission });
         }
 
-        return resource;
+        return document;
     }
 
     getCollection(): InstanceType<T>[] {
         let collection: InstanceType<T>[] = this.controller.index();
 
-        collection = collection.filter((resource) => this.hasPermissionForResource(resource)[0]);
+        collection = collection.filter((document) => this.hasPermissionForDocument(document)[0]);
 
         return collection;
     }
@@ -129,7 +124,7 @@ export class ApiResponse<T extends ApiModel> {
             .filter((c) => c.isMatch)[0];
 
         if (!match) {
-            throw new ApiError('Invalid query.', 400, {
+            throw new ApiError('InvalidQueryError', 'Invalid query.', 400, {
                 cases: cases.map((c) => c[0]),
             });
         }
@@ -137,36 +132,53 @@ export class ApiResponse<T extends ApiModel> {
         return match.handler(match.parsedQuery);
     }
 
-    setPermissionHandler(permissionHandler: ApiResponsePermissionHandler<T>) {
+    setPermissionHandler(permissionHandler: ApiRoutePermissionHandler<T>) {
         this.options.permissionHandler = permissionHandler;
     }
 
-    setFindHandler(findHandler: ApiResponseFindHandler<T>) {
+    setFindHandler(findHandler: ApiRouteFindHandler<T>) {
         this.options.findHandler = findHandler;
     }
 
-    private hasPermissionForResource(resource: InstanceType<T>): [boolean, string] {
-        const permission = this.findPermissionForResource(resource);
+    handleError(err: Error | string) {
+        if (!(err instanceof ApiError)) {
+            console.error(err);
+        }
+
+        let formattedErr;
+        if (err instanceof ApiError) {
+            formattedErr = err;
+        } else if (err instanceof Error) {
+            formattedErr = new ApiError('InternalError', err.message, 500);
+        } else {
+            formattedErr = new ApiError('InternalError', err + '', 500);
+        }
+
+        this.res.status(formattedErr.status).json(formattedErr.toJSON());
+    }
+
+    private hasPermissionForDocument(document: InstanceType<T>): [boolean, string] {
+        const permission = this.findPermissionForDocument(document);
 
         let hasPermission =
             typeof this.options.permissionHandler === 'function'
-                ? this.options.permissionHandler(permission, resource)
+                ? this.options.permissionHandler(permission, document)
                 : this.req.user.hasPermission(permission);
 
         return [hasPermission, permission];
     }
 
-    private findPermissionForResource(resource: InstanceType<T>) {
+    private findPermissionForDocument(document: InstanceType<T>) {
         // Split the request url pathname, i.e. ['api', 'devices', '1', 'records']
         const pathnameParts = _.trim(this.reqUrl.pathname, '/').split('/');
 
         // The permission's scope, e.g. 'devices.1.records' or 'devices.1'
-        const permissionScope = _.trimEnd(`${pathnameParts[1]}.${resource.id}.${pathnameParts.slice(3)}`, '.');
+        const permissionScope = _.trimEnd(`${pathnameParts[1]}.${document.id}.${pathnameParts.slice(3)}`, '.');
 
         // The action that the user currently performs
         const permissionAction = this.getCurrentAction();
 
-        // The full permission needed to access the resource, e.g. 'devices.1.records.view'
+        // The full permission needed to access the document, e.g. 'devices.1.records.view'
         return `${permissionScope}.${permissionAction}`;
     }
 
@@ -177,34 +189,29 @@ export class ApiResponse<T extends ApiModel> {
         return null;
     }
 
-    withAggregation(aggregation: Object): this {
+    setAggregation(aggregation: Object): this {
         this.resBody.aggregation = aggregation;
         return this;
     }
 
-    withResult(json: Object): this {
+    respondWith(json: Object): this {
         this.resBody.result = typeof json === 'undefined' ? {} : json;
         return this;
     }
 
-    withError(err: string | Error): this {
-        this.resBody.error = err;
-        return this;
+    async respondWithDocument(document: InstanceType<T>) {
+        this.respondWith(this.applyQueryModifiers(await this.serializeDocument(document)));
     }
 
-    async withResource(resource: InstanceType<T>) {
-        this.withResult(this.applyQueryModifiers(await this.serializeResource(resource)));
-    }
-
-    async withCollection(collection: InstanceType<T>[]) {
-        this.withResult(
-            await Promise.all(collection.map((resource) => this.applyQueryModifiers(this.serializeResource(resource)))),
+    async respondWithCollection(collection: InstanceType<T>[]) {
+        this.respondWith(
+            await Promise.all(collection.map((document) => this.applyQueryModifiers(this.serializeDocument(document)))),
         );
     }
 
     public applyQueryModifiers<T>(props: T): T {
         // The ?filter=a,b,c query parameter allows for only
-        // including specified props of a resource.
+        // including specified props of a document.
         if (this.req.query.filter) {
             // Get an array of the props to filter.
             const filterProps = this.req.query.filter.split(',');
@@ -219,17 +226,17 @@ export class ApiResponse<T extends ApiModel> {
         return props;
     }
 
-    protected async serializeResource(resource: InstanceType<T>): Promise<Object> {
+    protected async serializeDocument(document: InstanceType<T>): Promise<Object> {
         let props = {};
-        if (resource instanceof ModelWithProps) {
-            props = await resource.addDynamicProps(resource.getProps(false));
-        } else if (typeof resource.toJSON === 'function') {
-            props = resource.toJSON();
+        if (document instanceof ModelWithProps) {
+            props = await document.addDynamicProps(document.getProps(false));
+        } else if (typeof document.toJSON === 'function') {
+            props = document.toJSON();
         } else {
-            props = resource;
+            props = document;
         }
 
-        return Object.assign({ id: resource.id }, props);
+        return Object.assign({ id: document.id }, props);
     }
 }
 
@@ -244,7 +251,7 @@ export class ApiResponse<T extends ApiModel> {
 //         if(typeof permission === 'string') {
 //             permission = permission.replace(/{([a-z]+)}/g, ($1, $2) => req.params[$2]);
 
-//             // Throw an error if the user does not have permission to access this resource.
+//             // Throw an error if the user does not have permission to access this document.
 //             if(!req.user.hasPermission(permission))
 //                 return next(new PermissionError());
 //         }
@@ -271,10 +278,10 @@ export class ApiResponse<T extends ApiModel> {
 //                     let json = await Promise.all(index.map(model => serializeModel<T>(model, action)));
 //                     return res.json(json);
 //                 } else {
-//                     req.getResource = () => index;
+//                     req.getDocument = () => index;
 //                 }
 //             } else if(action.method === 'find' || action.method === 'edit') {
-//                 // The id of the resource to find.
+//                 // The id of the document to find.
 //                 const id = typeof action.id === 'function' ? action.id(req) : req.params.id;
 
 //                 const model = await controller.find<T>(id);
@@ -292,7 +299,7 @@ export class ApiResponse<T extends ApiModel> {
 //                     let json = await serializeModel(model, action);
 //                     return res.json(json);
 //                 } else {
-//                     req.getResource = () => model;
+//                     req.getDocument = () => model;
 
 //                 }
 //             }
