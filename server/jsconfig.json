@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["lib/*"],
+            "@ext/base/*": ["lib/models/extensions/bases/*"]
+        }
+    }
+}

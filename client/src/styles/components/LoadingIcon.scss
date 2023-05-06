@@ -1,0 +1,65 @@
+@import '../variables.scss';
+
+.LoadingIcon {
+    --LoadingIcon-spin-animation: LoadingIconSpin var(--LoadingIcon-animation-duration) cubic-bezier(0.42, 0.3, 0.58, 0.7) infinite;
+    --LoadingIcon-cycles-count: 5;
+    --LoadingIcon-color-animation: none;
+    --LoadingIcon-stroke-dash-max: 1460;
+    --LoadingIcon-stroke-dash-min: 250;
+    flex-direction: column;
+    overflow: hidden;
+
+    svg {
+        display: block;
+        height: var(--Icon-size);
+        width: var(--Icon-size);
+        min-height: var(--Icon-size);
+        min-width: var(--Icon-size);
+
+        >  path {
+            fill: transparent;
+            stroke: var(--LoadingIcon-color);
+            stroke-dasharray: var(--LoadingIcon-stroke-dash-max);
+            transform-origin: center;
+            animation: var(--LoadingIcon-spin-animation), var(--LoadingIcon-color-animation);
+        }
+    }
+}
+
+.LoadingIcon--animated > svg > path {
+    --LoadingIcon-color-animation: LoadingIconColor calc(var(--LoadingIcon-animation-duration) * var(--LoadingIcon-cycles-count)) linear infinite; 
+}
+
+@keyframes LoadingIconSpin {
+    0% {
+        transform: rotate(var(--LoadingIcon-rotate-start));
+        stroke-dashoffset: var(--LoadingIcon-stroke-dash-max);
+    } 
+
+    50% {
+        transform: rotate(calc(360deg + var(--LoadingIcon-rotate-start)));
+        stroke-dashoffset: var(--LoadingIcon-stroke-dash-min);
+    }
+
+    100% {
+        transform: rotate(calc(1080deg + var(--LoadingIcon-rotate-start)));
+        stroke-dashoffset: var(--LoadingIcon-stroke-dash-max);
+    }
+}
+
+@keyframes LoadingIconColor {
+    0%     { stroke: var(--LoadingIcon--animated--cycle-1-color); } 
+    19.99% { stroke: var(--LoadingIcon--animated--cycle-1-color); }
+
+    20%    { stroke: var(--LoadingIcon--animated--cycle-2-color); }
+    39.99% { stroke: var(--LoadingIcon--animated--cycle-2-color); }
+
+    40%    { stroke: var(--LoadingIcon--animated--cycle-3-color); }
+    59.99% { stroke: var(--LoadingIcon--animated--cycle-3-color); }
+
+    60%    { stroke: var(--LoadingIcon--animated--cycle-4-color); }
+    79.99% { stroke: var(--LoadingIcon--animated--cycle-4-color); }
+
+    80%    { stroke: var(--LoadingIcon--animated--cycle-5-color); }
+    99.99% { stroke: var(--LoadingIcon--animated--cycle-5-color); }
+}

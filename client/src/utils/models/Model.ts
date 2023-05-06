@@ -1,28 +1,28 @@
 export interface IModelProps {
-  id: number;
-  [key: string]: any;
+    id: number,
+    [key: string]: any
 }
 
 export default class Model {
-  id: number;
-  props: IModelProps;
+    id: number;
+    props: IModelProps;
 
-  constructor(props: IModelProps) {
-    this.props = props;
-    this.id = props.id;
+    constructor(props: IModelProps) {
+        this.props = props;
+        this.id = props.id;
 
-    return this;
-  }
+        return this;
+    }
 
-  getProps(): IModelProps {
-    return this.props;
-  }
+    getProps(): IModelProps {
+        return this.props;
+    }
 
-  getProp(key: string): any {
-    return this.getProps()[key];
-  }
+    getProp(propName: string): any {
+        return this.getProps()[propName];
+    }
 
-  exists() {
-    return this.props != undefined;
-  }
+    exists() {
+        return (this.props != undefined)
+    }
 }

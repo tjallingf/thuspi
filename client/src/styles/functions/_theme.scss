@@ -1,0 +1,3 @@
+@function theme($property, $scope) {
+    @return var(--#{$scope}-#{$property});
+}

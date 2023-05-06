@@ -1,14 +1,14 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react';
-import * as path from 'node:path';
+import path from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  build: {
+    build: {
     outDir: '../server/public',
     assetsDir: './',
-    emptyOutDir: true,
+    emptyOutDir: true
   },
   server: {
     port: 4301,
@@ -16,17 +16,17 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:4300',
-        changeOrigin: true,
+        changeOrigin: true
       },
       '/socket.io': {
         target: 'http://localhost:4300',
-        changeOrigin: true,
+        changeOrigin: true
       },
-    },
+    }
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src/'),
-    },
-  },
-});
+      '@': path.resolve(__dirname, './src/')
+    }
+  }
+})

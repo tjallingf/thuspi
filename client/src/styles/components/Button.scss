@@ -1,0 +1,103 @@
+@import '../variables';
+
+.Button {
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    background-color: var(--Button-bg);
+    color: var(--Button-color);
+    padding: var(--Button-padding-y) var(--Button-padding-x);
+}
+
+// -------------------------- //
+//           STATES           //
+// -------------------------- //
+
+.Button:hover {
+    background-color: var(--Button-bg);
+    color: var(--Button-color);
+
+    @media(hover: hover) {
+        background-color: var(--Button--hover-bg);
+        color: var(--Button--hover-color);
+    }
+}
+
+.Button.Button--focus {
+    background-color: var(--Button--focus-bg);
+    color: var(--Button--focus-color);
+}
+
+.Button.Button--active {
+    background-color: var(--Button--active-bg);
+    color: var(--Button--active-color);
+}
+
+.Button.Button--disabled,
+.Button.Button--loading,
+.Button:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+
+
+// -------------------------- //
+//           SIZES            //
+// -------------------------- //
+.Button--size-xs { 
+    --Button-padding-y: 0;
+    --Button-padding-x: 0;
+}
+
+.Button--size-sm { 
+    --Button-padding-y: 0.125rem;
+    --Button-padding-x: 0.25rem;
+}
+
+.Button--size-md { 
+    --Button-padding-y: 0.35rem;
+    --Button-padding-x: 0.5rem;
+}
+
+.Button--size-lg { 
+    --Button-padding-y: 0.5rem;
+    --Button-padding-x: 0.65rem;
+}
+
+
+// -------------------------- //
+//           SHAPES           //
+// -------------------------- //
+.Button--shape-square {
+    --Button-padding-x: var(--Button-padding-y);
+}
+
+
+// -------------------------- //
+//          VARIANTS          //
+// -------------------------- //
+.Button--variant-link {
+    background-color: transparent !important;
+}
+
+.Button--variant-minimal {
+    background-color: transparent !important;
+    color: inherit !important;
+}
+
+
+// -------------------------- //
+//        LOADING ICON        //
+// -------------------------- //
+.Button__LoadingIcon {
+    max-width: 0px;
+    margin-right: 0px;
+    transition: 125ms ease-out;
+    transition-property: margin-right, max-width;
+}
+
+.Button--loading .Button__LoadingIcon {
+    max-width: 1em;
+    margin-right: 0.5rem;
+}
