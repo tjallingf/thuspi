@@ -12,8 +12,6 @@ import Manifest from '../utils/Manifest';
 import { JSONParseOrFail } from '../utils/string';
 import { PromiseAllSettledObject } from '../utils/Promise';
 
-const RECORDINGS_FLUSH_INTERVAL = 19000;
-
 export interface Field {
     alias: string;
 }
@@ -30,51 +28,52 @@ export default class RecordManager {
     private latestRecord: Record;
     public config: Manifest<RecordManagerConfig>;
     private recordsInMemory = [];
-    private recordsInMemoryLastFlushedAt: number;
 
     constructor(device: Device) {
         this.device = device;
         this.dir = path.join(STORAGE_DIR, 'devices', this.device.id.toString(), 'records');
-        this.recordsInMemoryLastFlushedAt = Date.now();
+
         this.loadConfig().then((config) => {
             this.config = config;
         });
     }
 
     /**
-     * Store a new recording.
-     * @param recording - The recording.
+     * Store a new record.
+     * @param recording - The record to store.
      */
-    push(recording: Record) {
-        // Record config has to be loaded
-        if (!this.config) {
-            this.device.logger.notice('Tried to push a recording when the recording config was not loaded.');
-            return;
-        }
+    push(record: Record) {
+        try {
+            // Check if the record config has to be loaded
+            if (!this.config) {
+                throw new Error('Recording config not loaded.');
+            }
 
-        // Device option 'recording.enabled' has to be true
-        if (this.device.getOption('recording.enabled') !== true) {
-            this.device.logger.debug(`Tried to push a recording, but option 'recording.enabled' is not true.`);
-            return;
-        }
+            // Device option 'recording.enabled' has to be true
+            if (this.device.getOption('recording.enabled') !== true) {
+                return;
+            }
 
-        // If device option 'recording.cooldown' is more than or equal to 1,
-        // check if the new recording was performed at least 'recording.cooldown' after
-        // the latest recording. If it does not, return.
-        const cooldownSeconds = this.device.getOption('recording.cooldown');
-        if (cooldownSeconds >= 1) {
-            if (this.latestRecord?.date) {
-                const diffSeconds = Math.round((recording.date.getTime() - this.latestRecord.date.getTime()) / 1000);
-                if (diffSeconds < cooldownSeconds) {
-                    this.device.logger.debug(
-                        `Discarding new recording because the 'recording.cooldown' option of ${cooldownSeconds}s is not met. (${diffSeconds}s).`,
-                    );
-                    return;
+            // If device option 'recording.cooldown' is more than or equal to 1,
+            // check if the new record was performed at least 'recording.cooldown' after
+            // the latest record. If it does not, return.
+            const cooldownSeconds = this.device.getOption('recording.cooldown');
+            if (cooldownSeconds > 0) {
+                if (this.latestRecord?.date) {
+                    const diffSeconds = Math.round((record.date.getTime() - this.latestRecord.date.getTime()) / 1000);
+                    if (diffSeconds < cooldownSeconds) {
+                        this.device.logger.debug(
+                            `Discarding new record because the 'recording.cooldown' option of ${cooldownSeconds}s is not met. (${diffSeconds}s).`,
+                        );
+                        return;
+                    }
                 }
             }
-        }
 
-        this.store(recording);
+            this.store(record);
+        } catch (err) {
+            this.device.logger.error(`An error occured while storing a new record: ${err.message}.`);
+        }
     }
 
     /**
@@ -94,8 +93,8 @@ export default class RecordManager {
             records = records.concat(recordsForDate);
         }
 
-        // Append the records stored in memory. They might be of a
-        // different date, so we add them after top has been reached
+        // Append the records stored in memory. They might be of an
+        // earlier date, so we add them after top has been reached
         records = records.concat(this.recordsInMemory);
 
         return this.sortRecords(records).slice(-top);
@@ -237,18 +236,14 @@ export default class RecordManager {
 
         // Store the records in the file system and flush the
         // recording memory if the interval has been reached.
-        const timeDiff = Date.now() - this.recordsInMemoryLastFlushedAt;
-        if (timeDiff > RECORDINGS_FLUSH_INTERVAL) {
-            this.device.logger.debug(
-                `Flushing ${this.recordsInMemory.length} recording(s) to the file system because the last flush was over ${RECORDINGS_FLUSH_INTERVAL}ms ago (${timeDiff}ms).`,
-            );
+        const flushThreshold = this.device.getOption('recording.flushThreshold');
+        if (this.recordsInMemory.length >= flushThreshold) {
             this.storeInFileSystem(this.recordsInMemory).then((length) => {
                 this.device.logger.debug(`Flushed ${length} recording(s) to the file system.`);
             });
 
             // Clear the memory
             this.recordsInMemory = [];
-            this.recordsInMemoryLastFlushedAt = Date.now();
         }
     }
 
