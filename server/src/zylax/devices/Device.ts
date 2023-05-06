@@ -21,8 +21,10 @@ export interface DeviceProps {
         };
     };
     options: {
-        recording?: {
-            enabled?: boolean;
+        recording: {
+            enabled: boolean;
+            cooldown: number;
+            flushThreshold: number;
         };
     };
     connection: IDeviceConnectionConfig;
@@ -36,6 +38,22 @@ export default class Device extends ModelWithProps<DeviceProps> {
         dynamicProps: ['state', 'connection'],
         hiddenProps: ['driver'],
         controller: DeviceController,
+        propsDefaults: {
+            driver: {
+                options: {},
+            },
+            connection: {
+                options: {},
+            },
+            options: {
+                recording: {
+                    enabled: false,
+                    cooldown: 0,
+                    flushThreshold: 5,
+                },
+            },
+            metadata: {},
+        },
     };
 
     private _driver: DeviceDriver;
@@ -60,16 +78,14 @@ export default class Device extends ModelWithProps<DeviceProps> {
 
     init() {
         try {
-            (() => {
-                this.initRecordManager();
+            this.initRecordManager();
 
-                if (!this.initDriver()) {
-                    this.logger.debug('Driver not initialized, not initializing connection.');
-                    return;
-                }
+            if (!this.initDriver()) {
+                this.logger.debug('Driver not initialized, not initializing connection.');
+                return;
+            }
 
-                this.initConnection();
-            })();
+            this.initConnection();
         } catch (err) {
             this.logger.error(err);
         }
