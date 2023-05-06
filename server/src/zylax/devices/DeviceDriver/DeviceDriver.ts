@@ -9,7 +9,7 @@ export interface DeviceDriverManifest {
         fields?: Array<{
             name: string;
             type: string;
-            color: string;
+            color?: string;
         }>;
     };
     inputs?: Array<{
