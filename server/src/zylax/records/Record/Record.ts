@@ -2,13 +2,13 @@ import _ from 'lodash';
 import RecordManager from '../RecordManager';
 import * as constants from './constants';
 
-export interface Fields {
+export interface Values {
     [key: string]: number;
 }
 
 export interface SerializedRecord {
     d: Date;
-    f: Fields;
+    v: Values;
     time?: number;
 }
 
@@ -23,9 +23,9 @@ export default class Record {
         return this._date;
     }
 
-    private _fields: Fields = {};
-    get fields() {
-        return this._fields;
+    private _values: Values = {};
+    get values() {
+        return this._values;
     }
 
     constructor() {
@@ -37,11 +37,11 @@ export default class Record {
     }
 
     setValue(field: string, value: number) {
-        this._fields[field] = value;
+        this._values[field] = value;
     }
 
-    setValues(fields: Fields) {
-        _.defaults(this._fields, fields);
+    setValues(values: Values) {
+        _.defaults(this._values, values);
     }
 
     /**
@@ -50,10 +50,10 @@ export default class Record {
      * @returns {SerializedRecord} - Serialized version of the recording.
      */
     serialize(manager: RecordManager): SerializedRecord {
-        const compactFields = {};
+        const compactValues = {};
 
-        _.forOwn(this._fields, (value, field) => {
-            // Aliases are used to decrease the amount of
+        _.forOwn(this._values, (value, field) => {
+            // Aliases are used to minimize the amount of
             // disk space taken up by storing recordings
             let alias = manager.config.get(`fields.${field}.alias`);
             if (!alias) {
@@ -61,12 +61,12 @@ export default class Record {
                 manager.storeFieldAlias(field, alias);
             }
 
-            compactFields[alias] = value;
+            compactValues[alias] = value;
         });
 
         return {
             d: this._date,
-            f: compactFields,
+            v: compactValues,
         };
     }
 
