@@ -1,12 +1,12 @@
 import { useLocation, Location } from 'react-router';
-import { trimEnd } from 'lodash';
+import { trim } from 'lodash';
 
 function useTrimmedLocation(): Location {
-    const location = useLocation();
-    
-    location.pathname = trimEnd(location.pathname, '/');
+  const location = useLocation();
 
-    return location;
+  location.pathname = '/' + trim(location.pathname, '/');
+
+  return location;
 }
 
 export default useTrimmedLocation;

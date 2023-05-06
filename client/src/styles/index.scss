@@ -1,3 +1,5 @@
-@import './variables';
-@import './reboot';
-@import './theme';
+@import './themes';
+
+.text-truncate {
+  max-width: 100%;
+}

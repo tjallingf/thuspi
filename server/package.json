@@ -1,54 +1,53 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "main": "server.js",
-  "keywords": [],
-  "author": "Tjalling Feenstra",
-  "license": "ISC",
-  "scripts": {
-    "dev": "set NODE_ENV=dev&& nodemon server.js",
-    "start": "set NODE_ENV=prod&& node server.js"
-  },
-  "browserslist": [
-    "last 2 versions",
-    "> 1%"
-  ],
-  "devDependencies": {
-    "jest": "^29.1.1",
-    "nodemon": "^2.0.19",
-    "postcss": "^8.4.16",
-    "postcss-loader": "^7.0.1"
-  },
-  "dependencies": {
-    "ajv": "^8.12.0",
-    "axios": "^1.3.4",
-    "compression": "^1.7.4",
-    "connect-sqlite3": "^0.9.13",
-    "convert-units": "^2.3.4",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "csv-parse": "^5.3.1",
-    "csv-stringify": "^6.2.3",
-    "downsample": "^1.4.0",
-    "express": "^4.18.1",
-    "express-async-errors": "^3.1.1",
-    "express-session": "^1.17.3",
-    "glob": "^9.2.1",
-    "ip": "^1.1.8",
-    "lodash": "^4.17.21",
-    "module-alias": "^2.2.2",
-    "mysql2": "^3.1.2",
-    "passport": "^0.6.0",
-    "passport-local": "^1.0.0",
-    "passport-local-authenticate": "^1.2.0",
-    "randomstring": "^1.2.3",
-    "socket.io": "^4.6.0",
-    "stacktrace-js": "^2.0.2",
-    "uuid": "^9.0.0",
-    "winston": "^3.8.2"
-  },
-  "_moduleAliases": {
-    "@": "./lib",
-    "@ext/base": "./lib/models/extensions/bases"
-  }
+    "name": "server",
+    "version": "1.0.0",
+    "main": "app.js",
+    "scripts": {
+        "start": "set NODE_ENV=production&& node dist/app.js",
+        "dev": "set NODE_ENV=development&& nodemon src/app.ts",
+        "build": "tsc --project tsconfig.build.json"
+    },
+    "dependencies": {
+        "ajv": "^8.12.0",
+        "axios": "^1.3.4",
+        "color": "^4.2.3",
+        "compression": "^1.7.4",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "csv-parse": "^5.3.1",
+        "csv-stringify": "^6.2.3",
+        "dayjs": "^1.11.7",
+        "downsample": "^1.4.0",
+        "exit-hook": "^3.2.0",
+        "express": "^4.18.1",
+        "express-async-errors": "^3.1.1",
+        "express-mysql-session": "^3.0.0",
+        "express-session": "^1.17.3",
+        "glob": "^9.2.1",
+        "ip": "^1.1.8",
+        "kolorist": "^1.7.0",
+        "lodash": "^4.17.21",
+        "mysql2": "^3.2.0",
+        "passport": "^0.6.0",
+        "passport-local": "^1.0.0",
+        "passport-local-authenticate": "^1.2.0",
+        "randomstring": "^1.2.3",
+        "socket.io": "^4.6.0",
+        "stacktrace-js": "^2.0.2",
+        "uuid": "^9.0.0"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.17",
+        "@types/lodash": "^4.14.194",
+        "@types/node": "^18.15.11",
+        "@types/restify": "^8.5.7",
+        "jest": "^29.1.1",
+        "postcss": "^8.4.16",
+        "postcss-loader": "^7.0.1",
+        "prettier": "^2.8.7",
+        "ts-node": "^10.9.1",
+        "tsconfig-paths": "^4.2.0",
+        "tsconfig-replace-paths": "^0.0.14",
+        "typescript": "^5.0.3"
+    }
 }
