@@ -8,8 +8,8 @@ export interface ModelConfig {
 
 abstract class Model extends EventEmitter {
     static cnf: ModelConfig;
-    // @ts-ignore
     cnf(): ModelConfig {
+        // @ts-ignore
         return this.constructor.cnf;
     }
 

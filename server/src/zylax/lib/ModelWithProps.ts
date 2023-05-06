@@ -13,8 +13,8 @@ interface ModelWithPropsConfig<TProps extends Object = Object> extends ModelConf
 
 abstract class ModelWithProps<TProps extends Object = Object> extends Model {
     static cnf: ModelWithPropsConfig;
-    // @ts-ignore
     cnf(): ModelWithPropsConfig {
+        // @ts-ignore
         return this.constructor.cnf;
     }
 
