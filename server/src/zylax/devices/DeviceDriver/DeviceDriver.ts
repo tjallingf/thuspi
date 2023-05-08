@@ -3,6 +3,7 @@ import DeviceState from '../DeviceState';
 import Device from '../Device';
 import type DeviceConnectionConfig from '../DeviceConnectionConfig';
 
+export type DeviceDriverManifestInputType = 'toggle' | 'color' | 'open' | 'close' | 'stop';
 export interface DeviceDriverManifest {
     recording?: {
         supported?: boolean;
@@ -10,11 +11,12 @@ export interface DeviceDriverManifest {
             name: string;
             type: string;
             color?: string;
+            primary?: boolean;
         }>;
     };
     inputs?: Array<{
         name: string;
-        type: string;
+        type: DeviceDriverManifestInputType;
     }>;
 }
 
@@ -43,7 +45,7 @@ export default class DeviceDriver extends ExtensionModule {
     setup(): void {}
 
     createManifest(): DeviceDriverManifest {
-        return;
+        return {};
     }
 
     /**
@@ -68,12 +70,13 @@ export default class DeviceDriver extends ExtensionModule {
     }
 
     /**
-     * Check whether the driver has a specific input.
-     * @param name - The name of the input to find.
-     * @returns Whether the driver has an input with that name.
+     * Check whether the driver has an input of a specific type.
+     * @param type - The type of the input to find.
+     * @returns Whether the driver has an input of that type.
      */
-    hasInput(name: string) {
-        return this.manifest.inputs.some((i) => i.name === name);
+    hasInputOfType(type: DeviceDriverManifestInputType) {
+        if (!this.manifest?.inputs?.length) return false;
+        return this.manifest.inputs.some((i) => i.type === type);
     }
 
     /**
