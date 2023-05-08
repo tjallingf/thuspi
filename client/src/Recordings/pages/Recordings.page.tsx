@@ -1,31 +1,40 @@
 import { Page, Tile, Container, Box, Icon } from '@tjallingf/react-utils';
-import { useQuery } from '@tanstack/react-query';
+import useQuery from '@/hooks/useQuery';
+import { IDeviceProps } from '@/Devices/components/Device/Device';
+import RecordGraph from '../components/RecordGraph';
 
 const Recordings: React.FunctionComponent = () => {
-  const { data: devices } = useQuery<any[]>(['devices']);
+    const { result: devices } = useQuery<IDeviceProps[]>('devices');
 
-  const renderDevices = () => {
-    return devices?.map((props) => {
-      if (props.options?.recording?.enabled !== true) return null;
-      return (
-        <Tile>
-          <Box className="p-1">
-            <Icon id={props.icon} size={20} />
-          </Box>
-        </Tile>
-      );
-    });
-  };
+    const previewSpan = 24 * 60 * 60 * 1000;
+    const previewTo = new Date();
+    const previewFrom = new Date(previewTo.getTime() - previewSpan);
 
-  return (
-    <Page id="recordings">
-      <Container>
-        <Box direction="column" gutterY={2}>
-          {renderDevices()}
-        </Box>
-      </Container>
-    </Page>
-  );
+    return (
+        <Page id="recordings">
+            <Container>
+                <Box direction="column" gutterY={2}>
+                    {devices &&
+                        devices.map(({ id, icon, name, options }) => {
+                            if (options?.recording?.enabled !== true) return null;
+                            return (
+                                <Tile className="w-100">
+                                    <Tile.Title>
+                                        <Box gutterX={1} className="p-1" align="center">
+                                            <Icon id={icon} size={20} />
+                                            <span className="text-truncate ms-2">{name}</span>
+                                        </Box>
+                                    </Tile.Title>
+                                    <Box gutterX={1} gutterY={1} wrap="wrap" className="Device__display">
+                                        <RecordGraph deviceId={id} preview from={previewFrom} to={previewTo} />
+                                    </Box>
+                                </Tile>
+                            );
+                        })}
+                </Box>
+            </Container>
+        </Page>
+    );
 };
 
 export default Recordings;
