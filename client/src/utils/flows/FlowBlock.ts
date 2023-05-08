@@ -3,7 +3,7 @@ import fieldBlocks from './blockly/fieldBlocks';
 import { IntlShape } from 'react-intl';
 import { parseFieldValue } from './helpers';
 import fetchQuery from '../fetchQuery';
-import { IBlocksResult } from '@/Flows/components/FlowBlocklyEditor/FlowBlocklyEditor';
+import { IBlocksResult } from '@/Flows/components/FlowEditor/FlowEditor';
 
 export default class FlowBlock {
     type: string;
