@@ -22,7 +22,7 @@ const DeviceStateDisplayRecording: React.FunctionComponent<IDeviceStateDisplayRe
 
         // Resolve the aliases
 
-        return <span>{record.f[config.fields['b'].alias]}</span>;
+        return <span>{record.v[config.fields['b'].alias]}</span>;
     };
 
     return (
