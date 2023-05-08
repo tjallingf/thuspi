@@ -141,23 +141,25 @@ class Extension extends Model {
      */
     activate() {
         return new Promise<void>((resolve, reject) => {
-            const mainFilepath = this.getMainFilepath();
+            try {
+                const mainFilepath = this.getMainFilepath();
 
-            if (!fs.existsSync(mainFilepath)) {
-                return reject(new Error(`Cannot find main file, looked for '${mainFilepath}'.`));
-            }
+                if (!fs.existsSync(mainFilepath)) {
+                    throw new Error(`Cannot find main file, looked for '${mainFilepath}'.`);
+                }
 
-            this.lib = require(mainFilepath);
+                this.lib = require(mainFilepath);
 
-            // Call the 'activate()' function
-            if (typeof this.lib?.activate === 'function') {
+                // Call the 'activate()' function
+                if (typeof this.lib?.activate !== 'function') {
+                    throw new Error("No 'activate()' function was exported.");
+                }
+
                 this.lib.activate();
-                this.logger.info('Activated succesfully.');
-            } else {
-                this.logger.notice(`No 'activate()' function was exported.`);
+                resolve();
+            } catch (err: any) {
+                reject(err);
             }
-
-            return resolve();
         });
     }
 
@@ -178,6 +180,15 @@ class Extension extends Model {
         if (fs.existsSync(mainFilepath)) return mainFilepath;
 
         return null;
+    }
+
+    static parseModuleSlug(moduleSlug: string) {
+        const split = moduleSlug.split('.');
+
+        return {
+            extensionId: split[0],
+            moduleName: split.slice(1).join('.'),
+        };
     }
 }
 
