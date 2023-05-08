@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
+import useSocket from './useSocket';
 
-type CallbackFunction = (...args: any[]) => void;
+function useSocketEvent(type: string, listener: (...args: any[]) => void) {
+    const socket = useSocket();
+    useEffect(() => {
+        socket.on(type, listener);
 
-function useSocketEvent(type: string, listener: CallbackFunction) {
-  useEffect(() => {
-    (window as any).socket.on(type, listener);
-
-    return () => {
-      (window as any).socket.off(type, listener);
-    };
-  });
+        return () => {
+            socket.off(type, listener);
+        };
+    });
 }
 
 export default useSocketEvent;
