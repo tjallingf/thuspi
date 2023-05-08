@@ -7,7 +7,7 @@ export interface Values {
 }
 
 export interface SerializedRecord {
-    d: Date;
+    d: string;
     v: Values;
     time?: number;
 }
@@ -65,7 +65,7 @@ export default class Record {
         });
 
         return {
-            d: this._date,
+            d: this._date.toISOString(),
             v: compactValues,
         };
     }
