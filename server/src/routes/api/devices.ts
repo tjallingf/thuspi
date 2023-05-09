@@ -3,6 +3,7 @@ import { devices } from '../../zylax';
 import { Device, DeviceController } from '@/zylax/devices';
 import apiRoute from '@/server/apiRoute';
 import { Server } from '@/server/types';
+import { SerializedRecord } from '@/zylax/records/Record/Record';
 
 export default (server: Server) => {
     server.get(
@@ -23,25 +24,40 @@ export default (server: Server) => {
         '/api/devices/:id/records',
         apiRoute(Device, async (route, req) => {
             const device = route.getDocument(req.params.id);
+            const config = device.records.config.get();
 
-            route.setAggregation({
-                config: device.records.config.get(),
-            });
-
-            await route.querySwitch(
-                [
-                    { top: 'number' },
-                    async ({ top }: { top: number }) => {
-                        route.respondWith(await device.records.readTop(top));
-                    },
-                ],
+            let records: SerializedRecord[] = await route.querySwitch(
+                [{ top: 'number' }, ({ top }: { top: number }) => device.records.readTop(top)],
                 [
                     { from: 'date', to: 'date' },
-                    async ({ from, to }: { from: Date; to: Date }) => {
-                        route.respondWith(await device.records.readPeriod(from, to));
-                    },
+                    ({ from, to }: { from: Date; to: Date }) => device.records.readPeriod(from, to),
                 ],
             );
+
+            const filterFields = req.query['fields']?.split?.(',');
+            const fieldNamesByAlias = Object.fromEntries(
+                Object.entries(config.fields).map(([name, config]) => {
+                    return [config.alias, name];
+                }),
+            );
+
+            if (filterFields) {
+                records = records.map((record) => {
+                    return {
+                        ...record,
+                        v: _.pickBy(record.v, (value, fieldAlias) => {
+                            const fieldName = fieldNamesByAlias[fieldAlias];
+                            return filterFields.includes(fieldName);
+                        }),
+                    };
+                });
+            }
+
+            route.setAggregation({
+                config: config,
+            });
+
+            route.respondWith(records);
         }),
     );
 
