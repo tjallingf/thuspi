@@ -23,7 +23,7 @@ export interface IExtensionLib {
 }
 
 class Extension extends Model {
-    public id: string;
+    public declare id: string;
     public dir: string;
     public modules: IExtensionModules = {};
     public manifest: Manifest;
