@@ -8,7 +8,7 @@ interface ModelWithPropsConfig<TProps extends Object = Object> extends ModelConf
     dynamicProps?: string[];
     hiddenProps?: string[];
     controller: any;
-    propsDefaults: TProps;
+    propsDefaults?: TProps;
 }
 
 abstract class ModelWithProps<TProps extends Object = Object> extends Model {
@@ -34,14 +34,14 @@ abstract class ModelWithProps<TProps extends Object = Object> extends Model {
      * Get all properties of the model.
      * @returns A copy of the properties of the model.
      */
-    getProps(includeHidden = true): TProps {
-        let props = this.props;
+    getProps(includeHidden = true): Partial<TProps> {
+        let propsClone: Partial<TProps> = Object.assign({}, this.props);
 
         if (!includeHidden && this.cnf().hiddenProps?.length) {
-            props = _.omit(props, this.cnf().hiddenProps);
+            propsClone = _.omit(propsClone, this.cnf().hiddenProps);
         }
 
-        return Object.assign({}, props);
+        return propsClone;
     }
 
     /**
