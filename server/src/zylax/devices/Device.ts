@@ -56,17 +56,17 @@ export default class Device extends ModelWithProps<DeviceProps> {
         },
     };
 
-    private _driver: DeviceDriver;
+    private _driver: DeviceDriver | void;
     get driver() {
         return this._driver;
     }
 
-    private _driverManifest: Manifest;
+    private _driverManifest: Manifest | void;
     get driverManifest() {
         return this._driverManifest;
     }
 
-    private _connection: DeviceConnector;
+    private _connection: DeviceConnector | void;
     get connection() {
         return this._connection;
     }
@@ -86,7 +86,7 @@ export default class Device extends ModelWithProps<DeviceProps> {
             }
 
             this.initConnection();
-        } catch (err) {
+        } catch (err: any) {
             this.logger.error(err);
         }
     }
@@ -94,6 +94,14 @@ export default class Device extends ModelWithProps<DeviceProps> {
     async handleInput(name: string, value: any): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
+                if (!this._driver || !this._driverManifest) {
+                    throw new Error('No driver initialized.');
+                }
+
+                if (!this._connection) {
+                    throw new Error('No connection initialized.');
+                }
+
                 if (!this._driverManifest.get('inputs').some((i) => i.name === name)) {
                     throw new Error(`${this._driver} does not have an input named '${name}'.`);
                 }
@@ -174,6 +182,10 @@ export default class Device extends ModelWithProps<DeviceProps> {
      * Initializethe connection.
      */
     protected initConnection(): void {
+        if (!this._driver) {
+            throw new Error('Cannot initialize connection when no driver is initialized.');
+        }
+
         let connConfig = new DeviceConnectionConfig(this.getProp('connection'));
 
         // Invoke the driver's modifyConnectionConfig() to edit the connection config.
@@ -188,7 +200,7 @@ export default class Device extends ModelWithProps<DeviceProps> {
             return;
         }
 
-        const ConnectionModule = ExtensionController.findModule(DeviceConnector, connConfig.getType());
+        const ConnectionModule = ExtensionController.findModule(DeviceConnector, connConfig.getType()!);
 
         const connection = new ConnectionModule(this, connConfig);
 
@@ -233,13 +245,13 @@ export default class Device extends ModelWithProps<DeviceProps> {
     }
 
     async prop_state() {
-        return this._driver ? this._driver.getState().toJSON() : null;
+        return this.driver ? this.driver.getState().toJSON() : null;
     }
 
     async prop_connection() {
         return {
             isCreated: this._connection instanceof DeviceConnector,
-            isOpen: !!this._connection?.isOpen,
+            isOpen: this._connection && this._connection.isOpen,
         };
     }
 
