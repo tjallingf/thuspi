@@ -84,7 +84,7 @@ abstract class ModelWithProps<TProps extends Object = Object> extends Model {
         return this;
     }
 
-    async addDynamicProps(props: TProps): Promise<Object> {
+    async addDynamicProps(props: Partial<TProps>): Promise<Partial<TProps>> {
         if (this.cnf().dynamicProps?.length) {
             const promises = {};
 
