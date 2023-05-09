@@ -1,5 +1,5 @@
 import useAuth from '@/hooks/useAuth';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button, Box, Icon, Tile, colors, colorpalettes } from '@tjallingf/react-utils';
 import classNames from 'classnames';
 import fetchQuery from '@/utils/fetchQuery';
@@ -8,23 +8,13 @@ import DeviceDisplayTile from '../DeviceDisplayTile';
 import DeviceDisplayButtons from '../DeviceDisplayButtons';
 import DeviceStateDisplayRecording from '../DeviceStateDisplayRecording';
 import useSocketEvent from '@/hooks/useSocketEvent';
+import { DeviceProps } from '@server/devices/Device';
 
 const { textDark } = colors;
 
-export interface IDeviceProps {
-    id: number;
-    name: string;
-    icon: string;
-    color: string;
+export interface IDeviceProps extends DeviceProps {
+    connection: any;
     state: any;
-    driver: {
-        type: string;
-        options: any;
-    };
-    connection: {
-        isCreated: boolean;
-        isOpen: boolean;
-    };
 }
 
 const Device: React.FunctionComponent<IDeviceProps> = (props) => {
@@ -38,7 +28,7 @@ const Device: React.FunctionComponent<IDeviceProps> = (props) => {
         setUpdatedProps(e.device);
     });
 
-    const handleInput = (name: string, value: boolean | string | number) =>
+    function handleInput(name: string, value: boolean | string | number) {
         fetchQuery(`devices/${id}/inputs`, {
             method: 'patch',
             data: {
@@ -50,8 +40,9 @@ const Device: React.FunctionComponent<IDeviceProps> = (props) => {
                 ],
             },
         });
+    }
 
-    const renderStateDisplay = () => {
+    const stateDisplay = useMemo(() => {
         if (!state?.display) return null;
 
         if (state.display.buttons?.length && user.hasPermission(`devices.${id}.input`)) {
@@ -61,14 +52,13 @@ const Device: React.FunctionComponent<IDeviceProps> = (props) => {
         if (state.display.tile && user.hasPermission(`devices.${id}.view`)) {
             return <DeviceDisplayTile display={state.display} onChange={handleInput} deviceColor={color} />;
         }
-        console.log({ id: id, display: state.display });
 
         if (state.display.recording && user.hasPermission(`devices.${id}.records.view`)) {
             return <DeviceStateDisplayRecording display={state.display} deviceColor={color} id={id} />;
         }
-    };
+    }, []);
 
-    const getError = (): { icon: string; message: string } | undefined => {
+    const error: { icon: string; message: string } = (() => {
         if (!connection.isCreated) {
             return { icon: 'bolt-slash', message: 'No connection can be found' };
         }
@@ -76,9 +66,9 @@ const Device: React.FunctionComponent<IDeviceProps> = (props) => {
         if (!connection.isOpen) {
             return { icon: 'bolt', message: 'Connection was found, but is not open.' };
         }
-    };
 
-    const error = getError();
+        return null;
+    })();
 
     return (
         <Tile
@@ -96,7 +86,7 @@ const Device: React.FunctionComponent<IDeviceProps> = (props) => {
                     <Button to={`/devices/${id}`} variant="minimal" size="md" className="overflow-hidden mw-100 p-1">
                         <Box gutterX={1} align="center" className="overflow-hidden mw-100">
                             <Icon id={icon} size={20} font={isActive ? 'solid' : 'light'} />
-                            <div className="text-truncate ms-2">{name}</div>
+                            <span className="text-truncate ms-2">{name}</span>
                             {error && (
                                 <>
                                     <Icon id={error.icon} size={12} font="regular" />
@@ -107,7 +97,7 @@ const Device: React.FunctionComponent<IDeviceProps> = (props) => {
                     </Button>
                 </Tile.Title>
                 <Box gutterX={1} gutterY={1} wrap="wrap" className="Device__display">
-                    {renderStateDisplay()}
+                    {stateDisplay}
                 </Box>
             </Box>
         </Tile>
