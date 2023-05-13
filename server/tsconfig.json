@@ -12,7 +12,7 @@
         "module": "commonjs",
         "skipLibCheck": true,
         "esModuleInterop": true,
-        "strict": false,
+        "strict": true,
         "noImplicitReturns": false,
         "strictPropertyInitialization": false,
         "allowSyntheticDefaultImports": true,
