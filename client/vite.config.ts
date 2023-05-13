@@ -14,7 +14,7 @@ export default defineConfig({
     port: 4301,
     strictPort: true,
     proxy: {
-      '/api': {
+      '/trpc': {
         target: 'http://localhost:4300',
         changeOrigin: true,
       },

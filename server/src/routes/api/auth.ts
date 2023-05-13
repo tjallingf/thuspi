@@ -1,12 +1,17 @@
 import { User } from '@/zylax/users';
 import passport from 'passport';
 import apiRoute from '@/server/apiRoute';
-import { Server } from '@/server/types';
+import { Server } from '@/types';
 
 export default (server: Server) => {
     server.post(
         '/api/auth/login/',
-        passport.authenticate('local'),
+        (req, res, next) => {
+            passport.authenticate('local')(req, res, (...args: any[]) => {
+                // console.log('1', args, req.user);
+                next();
+            })
+        },
         apiRoute(User, async (route, req) => {
             route.setPermissionHandler(() => true);
             await route.respondWithDocument(req.user);

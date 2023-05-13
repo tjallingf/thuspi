@@ -6,17 +6,18 @@ export interface ModelConfig {
     maxListeners?: number;
 }
 
-abstract class Model extends EventEmitter {
-    static cnf: ModelConfig;
+abstract class Model<TId extends string | number> extends EventEmitter {
+    protected id: TId;
+    protected static cnf: ModelConfig;
+    
     cnf(): ModelConfig {
         // @ts-ignore
         return this.constructor.cnf;
     }
 
-    id: string;
     logger: Logger;
 
-    constructor(id: string) {
+    constructor(id: TId) {
         super();
         this.id = id;
         this.logger = logger.child({ label: this.toString() });
@@ -43,6 +44,10 @@ abstract class Model extends EventEmitter {
      */
     toJSON(): any {
         return { id: this.id };
+    }
+
+    getId() {
+        return this.id;
     }
 }
 

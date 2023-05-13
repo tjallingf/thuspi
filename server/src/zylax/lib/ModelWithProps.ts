@@ -11,7 +11,11 @@ interface ModelWithPropsConfig<TProps extends Object = Object> extends ModelConf
     propsDefaults?: TProps;
 }
 
-abstract class ModelWithProps<TProps extends Object = Object> extends Model {
+abstract class ModelWithProps<
+    TProps extends Object = Object, 
+    TSerializedProps extends Object = TProps,
+    TId extends string | number = number
+> extends Model<TId> {
     static cnf: ModelWithPropsConfig;
     cnf(): ModelWithPropsConfig {
         // @ts-ignore
@@ -20,7 +24,7 @@ abstract class ModelWithProps<TProps extends Object = Object> extends Model {
 
     protected props: TProps = {} as TProps;
 
-    constructor(id: string, props: TProps) {
+    constructor(id: TId, props: TProps) {
         super(id);
 
         this.props = _.defaultsDeep(props, this.cnf().propsDefaults);
@@ -84,10 +88,8 @@ abstract class ModelWithProps<TProps extends Object = Object> extends Model {
         return this;
     }
 
-    async addDynamicProps(props: Partial<TProps>): Promise<Partial<TProps>> {
+    addSyncDynamicProps(props: Partial<TProps>): Partial<TProps> {
         if (this.cnf().dynamicProps?.length) {
-            const promises = {};
-
             this.cnf().dynamicProps.forEach(async (key) => {
                 const getValueFunc = this[`prop_${key}`];
                 if (typeof getValueFunc !== 'function') {
@@ -95,19 +97,27 @@ abstract class ModelWithProps<TProps extends Object = Object> extends Model {
                     return true;
                 }
 
-                let value = getValueFunc.apply(this);
-                if (value instanceof Promise) {
-                    promises[key] = value;
-                } else {
-                    props[key] = value;
-                }
+                props[key] = getValueFunc.apply(this);
             });
-
-            const dynamicProps = await PromiseAllObject(promises);
-            Object.assign(props, dynamicProps);
         }
 
+        props.id = this.getId();
+
         return props;
+    }
+
+    async addAllDynamicProps(props: Partial<TProps>): Promise<Partial<TProps>> {
+        const syncDynamicProps = this.addSyncDynamicProps(props);
+        return await PromiseAllObject(syncDynamicProps);
+    }
+
+
+    toJSON() {
+        return this.addSyncDynamicProps(this.getProps(false));
+    }
+
+    async serialize() {
+        return await this.addAllDynamicProps(this.getProps(false)) as unknown as TSerializedProps;
     }
 }
 

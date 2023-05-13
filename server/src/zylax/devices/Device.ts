@@ -8,6 +8,7 @@ import DeviceController from './DeviceController';
 import Manifest from '../utils/Manifest';
 import RecordManager from '../records/RecordManager';
 import _ from 'lodash';
+import { DeviceStateDisplay } from './DeviceState';
 
 export interface DeviceProps {
     id: number;
@@ -33,7 +34,20 @@ export interface DeviceProps {
     };
 }
 
-export default class Device extends ModelWithProps<DeviceProps> {
+export interface SerializedDeviceConnection {
+    isCreated: boolean,
+    isOpen: boolean
+}
+
+export type SerializedDeviceProps = DeviceProps & {
+    connection: SerializedDeviceConnection,
+    state: {
+        isActive: boolean,
+        display: DeviceStateDisplay
+    }
+}
+
+export default class Device extends ModelWithProps<DeviceProps, SerializedDeviceProps, number> {
     static cnf = {
         dynamicProps: ['state', 'connection'],
         hiddenProps: ['driver'],
@@ -61,12 +75,12 @@ export default class Device extends ModelWithProps<DeviceProps> {
         return this._driver;
     }
 
-    private _driverManifest: Manifest | void;
+    private _driverManifest: Manifest | null = null;
     get driverManifest() {
         return this._driverManifest;
     }
 
-    private _connection: DeviceConnector | void;
+    private _connection: DeviceConnector | null = null;
     get connection() {
         return this._connection;
     }
@@ -102,7 +116,7 @@ export default class Device extends ModelWithProps<DeviceProps> {
                     throw new Error('No connection initialized.');
                 }
 
-                if (!this._driverManifest.get('inputs').some((i) => i.name === name)) {
+                if (!this._driverManifest.get('inputs').some((i: any) => i.name === name)) {
                     throw new Error(`${this._driver} does not have an input named '${name}'.`);
                 }
 
@@ -244,14 +258,14 @@ export default class Device extends ModelWithProps<DeviceProps> {
         // });
     }
 
-    async prop_state() {
+    prop_state() {
         return this.driver ? this.driver.getState().toJSON() : null;
     }
 
-    async prop_connection() {
+    prop_connection(): SerializedDeviceConnection {
         return {
             isCreated: this._connection instanceof DeviceConnector,
-            isOpen: this._connection && this._connection.isOpen,
+            isOpen: !!(this._connection && this._connection.isOpen),
         };
     }
 
@@ -261,7 +275,7 @@ export default class Device extends ModelWithProps<DeviceProps> {
     emitClientUpdate() {
         (async () => {
             WebSocket.emit('devices:change', {
-                device: await this.addDynamicProps(this.getProps()),
+                device: await this.addAllDynamicProps(this.getProps()),
             });
         })();
     }

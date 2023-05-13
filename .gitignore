@@ -33,7 +33,9 @@ server/storage/devices/**
 !server/storage/extensions
 server/storage/extensions/**
 server/config/secret.json
-server/config/flows.json
+
+# Vite
+vite.config.ts.timestamp-*
 
 # Legacy files
 LEGACY-*.*

@@ -1,5 +1,5 @@
 import apiRoute from '@/server/apiRoute';
-import { Server } from '@/server/types';
+import { Server } from '@/types';
 import { Language } from '@/zylax/localization';
 import LanguageController from '@/zylax/localization/LanguageController';
 

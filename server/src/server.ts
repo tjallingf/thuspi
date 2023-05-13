@@ -1,20 +1,16 @@
-import ip from 'ip';
-import express, { Express } from 'express';
-require('express-async-errors');
+import express from 'express';
 import cookieParser from 'cookie-parser';
-import compression from 'compression';
 import cors from 'cors';
 import session from 'express-session';
 import passport from 'passport';
 import ExpressMySQLSession from 'express-mysql-session';
-import passportService from './server/services/passport';
-// import errorMiddleware from './middleware/apiErrorMiddleware';
-import defaultUserMiddleware from './server/middleware/defaultUserMiddleware';
-// import apiMiddleware from './middleware/apiMiddleware';
+import passportService from './express/auth/services/passport';
 import { WebSocket, Database, Config, logger } from './zylax';
-import * as routeCollections from './routes';
+import { trpcMiddleware } from './express/middleware/trpcMiddleware';
 
-const MySQLStore = ExpressMySQLSession(session);
+const MySQLStore = ExpressMySQLSession(session as any);
+
+export const serverLogger = logger.child({ label: 'Server' });
 
 export function start() {
     const server = express();
@@ -22,19 +18,17 @@ export function start() {
     // Parse cookies
     server.use(cookieParser());
 
-    // Compress requests
-    server.use(compression());
-
     // Setup static directory
     server.use(express.static('public'));
-
-    // Parse JSON bodies
-    server.use(express.json());
 
     // Allow CORS
     server.use(cors());
 
+    // Disable 'X-Powered-By' header
+    server.disable('x-powered-by');
+
     // Setup Passport.js middleware
+    serverLogger.debug('Setting up Passport.js middleware...');
     server.use(
         session({
             secret: passportService.getOrCreateSecret(),
@@ -45,30 +39,20 @@ export function start() {
     );
     server.use(passport.authenticate('session'));
 
-    // Disable 'X-Powered-By' header
-    server.disable('x-powered-by');
-
-    server.use(defaultUserMiddleware);
-
-    // // Setup API middleware
-    // server.use(apiMiddleware);
-
     // Initialize Passport.js
-    passportService.initialize();
+    serverLogger.debug('Initializing Passport.js...');
+    passportService.init();
 
-    // Load routes
-    Object.values(routeCollections).forEach((routeCollection: (...args: any[]) => any) => {
-        routeCollection(server);
-    });
+    // Add tRPC middleware
+    serverLogger.debug('Setting up tRPC middleware...');
+    server.use('/trpc', trpcMiddleware);
 
-    // // Setup error handler middelware
-    // server.use(errorMiddleware);
     // Get web port
     const serverPort = Config.get('system.server.port');
-
     const serverWithWebsocket = WebSocket.setup(server);
 
+    serverLogger.debug(`Starting server on port ${serverPort}...`);
     serverWithWebsocket.listen(serverPort, () => {
-        logger.info(`Web client listening at http://${ip.address()}:${serverPort}.`);
+        serverLogger.info(`Listening at http://localhost:${serverPort}.`);
     });
 }

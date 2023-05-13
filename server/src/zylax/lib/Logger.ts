@@ -53,12 +53,11 @@ export default class Logger {
         line.push('['+label+']');
 
         // LEVEL
-        const level = this.colors[options.level](options.level);
+        const level = this.colors[options.level!](options.level!);
         line.push(level+':');
 
         // MESSAGE
-        const message = _.trimEnd(data, '.');
-        line.push(message+'.');
+        line.push(data);
 
         // META
         if(options.meta) {

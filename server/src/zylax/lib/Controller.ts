@@ -5,7 +5,7 @@ export type FilterPredicate<TModel> = (model: TModel) => boolean;
 export type Data<TModel, TId extends string | number> = { [key in TId]: TModel };
 export type ControllerType = ReturnType<typeof Controller>;
 
-export default function Controller<TModel extends Model, TId extends string | number = string>() {
+export default function Controller<TModel extends Model<any>, TId extends string | number = string>() {
     abstract class Controller {
         protected static data: Data<TModel, TId>;
 

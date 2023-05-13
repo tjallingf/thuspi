@@ -2,7 +2,6 @@ import fieldBlocks from './blockly/fieldBlocks';
 import { IntlShape } from 'react-intl';
 import { forOwn } from 'lodash';
 import { moveKeyToProperty } from '../array';
-import { FlowBlockCategoryManifest } from '@server/flows/FlowBlockCategory';
 import { getColorValue } from '../colors';
 import { colorpalettes } from '@tjallingf/react-utils';
 

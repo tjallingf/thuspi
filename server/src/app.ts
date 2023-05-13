@@ -24,17 +24,26 @@ dayjs.extend(customParseFormat);
             : 'production';
 
     // Check whether the server is running in development or production
-    logger.info(`Starting in ${process.env.NODE_ENV} mode.`);
+    logger.info(`Starting in ${process.env.NODE_ENV} mode...`);
+
+    // Load the config
+    logger.debug('Loading configuration...');
+    await Config.load();
 
     // Connect to the database
-    Database.connect(Config.get('secret.database'));
+    const dbConf = Config.get('secret.database');
+    logger.debug(`Connecting to database '${dbConf.database}' as user '${dbConf.user}'...`);
+    Database.connect(dbConf);
 
-    // Load all entities
+    // Load controllers
+    logger.debug('Initializing controllers...');
     await users.UserController.load();
     await extensions.ExtensionController.load();
     localization.LocaleController.load();
     await devices.DeviceController.load();
     await flows.FlowController.load();
 
+    // Start the webserver
+    logger.debug('Starting server...');
     server.start();
 })();

@@ -25,8 +25,6 @@ class Database {
             password: credentials.password,
             database: credentials.database
         });
-
-        logger.debug(`Connected to database '${credentials.database}' as user '${credentials.user}'.`);
     }
 
     static async query(sql: string, params : any[]= []): Promise<any[]> {

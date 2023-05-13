@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { devices } from '../../zylax';
 import { Device, DeviceController } from '@/zylax/devices';
 import apiRoute from '@/server/apiRoute';
-import { Server } from '@/server/types';
+import { Server } from '@/types';
 import { SerializedRecord } from '@/zylax/records/Record/Record';
 
 export default (server: Server) => {

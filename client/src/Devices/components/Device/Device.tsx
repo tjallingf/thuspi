@@ -8,37 +8,27 @@ import DeviceDisplayTile from '../DeviceDisplayTile';
 import DeviceDisplayButtons from '../DeviceDisplayButtons';
 import DeviceStateDisplayRecording from '../DeviceStateDisplayRecording';
 import useSocketEvent from '@/hooks/useSocketEvent';
-import { DeviceProps } from '@server/devices/Device';
+import { trpc } from '@/utils/trpc';
+import { type SerializedDeviceProps } from '@server/zylax/devices/Device';
 
 const { textDark } = colors;
 
-export interface IDeviceProps extends DeviceProps {
-    connection: any;
-    state: any;
-}
-
-const Device: React.FunctionComponent<IDeviceProps> = (props) => {
-    const [updatedProps, setUpdatedProps] = useState<IDeviceProps>(props);
+const Device: React.FunctionComponent<SerializedDeviceProps> = (props) => {
+    const [updatedProps, setUpdatedProps] = useState<SerializedDeviceProps>(props);
     const { id, state, color, name, icon, connection } = updatedProps;
     const { user } = useAuth();
     const isActive = state?.isActive;
+    const input = trpc.device.input.useMutation();
 
     useSocketEvent('devices:change', (e) => {
         if (e.device.id !== props.id) return;
         setUpdatedProps(e.device);
     });
 
-    function handleInput(name: string, value: boolean | string | number) {
-        fetchQuery(`devices/${id}/inputs`, {
-            method: 'patch',
-            data: {
-                inputs: [
-                    {
-                        name: name,
-                        value: value,
-                    },
-                ],
-            },
+    function handleInput(name: string, value: any) {
+        input.mutate({ 
+            id: props.id, 
+            values: [{ name, value }]
         });
     }
 

@@ -1,28 +1,28 @@
-export interface IModelProps {
-  id: number;
-  [key: string]: any;
+export interface SerializedProps {
+    id: number;
+    [key: string]: any;
 }
 
-export default class Model {
-  id: number;
-  props: IModelProps;
+export default class Model<TSerializedProps extends SerializedProps = SerializedProps> {
+    id: number;
+    props: TSerializedProps;
 
-  constructor(props: IModelProps) {
-    this.props = props;
-    this.id = props.id;
+    constructor(props: TSerializedProps) {
+        this.props = props;
+        this.id = props.id;
 
-    return this;
-  }
+        return this;
+    }
 
-  getProps(): IModelProps {
-    return this.props;
-  }
+    getProps(): TSerializedProps {
+        return this.props;
+    }
 
-  getProp(key: string): any {
-    return this.getProps()[key];
-  }
+    getProp(key: string): any {
+        return this.getProps()[key];
+    }
 
-  exists() {
-    return this.props != undefined;
-  }
+    exists() {
+        return this.props != undefined;
+    }
 }

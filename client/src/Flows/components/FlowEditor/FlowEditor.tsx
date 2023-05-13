@@ -9,7 +9,6 @@ import { useIntl } from 'react-intl';
 import fieldBlocks from '../../../utils/flows/blockly/fieldBlocks';
 import '../../assets/blockly/custom-fields/index';
 import useSocket from '@/hooks/useSocket';
-import { FlowBlockCategoryManifest } from '@server/flows/FlowBlockCategory';
 
 export interface IFlowEditorProps {
     flowId: string;

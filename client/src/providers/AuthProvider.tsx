@@ -1,33 +1,36 @@
 import { useState, useEffect } from 'react';
 import useQuery from '@/hooks/useQuery';
 import AuthContext, { IAuthContext } from '@/contexts/AuthContext';
-import UserModel from '@/utils/models/User';
+import User from '@/utils/models/User';
+import { trpc } from '../utils/trpc';
 
 export interface IAuthProviderProps {
-  children?: React.ReactNode;
+    children?: React.ReactNode;
 }
 
 const AuthProvider: React.FunctionComponent<IAuthProviderProps> = ({ children }) => {
-  const [value, setValue] = useState({} as IAuthContext);
+    const [ value, setValue ] = useState({} as IAuthContext);
+    const user = trpc.user.get.useQuery({ id: 'me' });
 
-  useEffect(() => {
-    if (!value.user) return;
-    document.body.dataset.colorScheme = value.user.getSetting('theme');
-  }, [value]);
+    useEffect(() => {
+        if(!user.data) return;
 
-  const { refetch } = useQuery<any>('users/me', {
-    onSuccess: (userProps) => {
-      setValue({
-        isLoggedIn: userProps.id !== 'default',
-        user: new UserModel(userProps),
-        refresh: refetch,
-      });
-    },
-  });
+        setValue({
+            user: new User(user.data),
+            isLoggedIn: !user.data.isDefault,
+            refresh: user.refetch
+        })
+    }, [ user.data ]);
 
-  if (!value.user) return null;
+    useEffect(() => {
+        if(!value.user) return;
+        
+        document.body.dataset.colorScheme = value.user.getSetting('theme');
+    }, [ value.user ]);
+    
+    if (!value.user) return null;
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

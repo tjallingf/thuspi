@@ -1,4 +1,4 @@
-import { useState, FunctionComponent } from 'react';
+import { useState, useEffect, FunctionComponent } from 'react';
 import { Container, Button, TextInput, PasswordInput, Box, Page } from '@tjallingf/react-utils';
 import FormField from '@/Forms/FormField';
 import Form from '@/Forms/Form';
@@ -6,28 +6,25 @@ import fetchQuery from '@/utils/fetchQuery';
 import { FormattedMessage } from 'react-intl';
 import useAuth from '@/hooks/useAuth';
 import { useNavigate } from 'react-router';
+import { trpc } from '@/utils/trpc';
 
 const Login: FunctionComponent = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const login = trpc.auth.login.useMutation();
 
     const { refresh } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = (data: any) => {
         setIsLoading(true);
-        fetchQuery('auth/login', {
-            method: 'POST',
-            data: data,
-        })
-            .then(() => {
+        login.mutate(data, {
+            onSuccess: () => {
                 refresh().then(() => {
                     setIsLoading(false);
                     navigate('/devices');
                 });
-            })
-            .catch(() => {
-                setTimeout(() => setIsLoading(false), 300);
-            });
+            }
+        });
     };
 
     return (

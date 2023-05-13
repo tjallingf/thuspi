@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import apiRoute from '@/server/apiRoute';
 import { UserController, User } from '@/zylax/users';
-import { Server } from '@/server/types';
+import { Server } from '@/types';
 
 export default (server: Server) => {
     server.get(

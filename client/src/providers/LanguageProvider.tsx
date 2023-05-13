@@ -1,5 +1,6 @@
 import useAuth from '@/hooks/useAuth';
 import useQuery from '@/hooks/useQuery';
+import { trpc } from '@/utils/trpc';
 import { IntlProvider } from 'react-intl';
 
 export interface ILanguageProviderProps {
@@ -9,9 +10,9 @@ export interface ILanguageProviderProps {
 const LanguageProvider: React.FunctionComponent<ILanguageProviderProps> = ({ children }) => {
     const { user } = useAuth();
     const languageKey = user.getSetting('language').toLowerCase();
-    const { result, isLoading } = useQuery<any>(`languages/${languageKey}`);
+    const language = trpc.language.get.useQuery({ key: languageKey });
 
-    if (isLoading) return <span>Loading language...</span>;
+    if (language.isLoading) return <span>Loading language...</span>;
 
     const handleError = (err) => {
         if (err.message.includes('The intl string context variable') && err.descriptor.id.includes('flows.blocks')) {
@@ -21,7 +22,7 @@ const LanguageProvider: React.FunctionComponent<ILanguageProviderProps> = ({ chi
     };
 
     return (
-        <IntlProvider locale={languageKey} messages={result.messages}>
+        <IntlProvider locale={languageKey} messages={language.data.messages}>
             {children}
         </IntlProvider>
     );

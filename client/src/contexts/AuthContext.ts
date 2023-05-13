@@ -1,9 +1,9 @@
 import { createContext } from 'react';
-import UserModel from '@/utils/models/User';
+import User from '@/utils/models/User';
 
 export interface IAuthContext {
     isLoggedIn: boolean;
-    user: UserModel;
+    user: User;
     refresh(): Promise<object>;
 }
 

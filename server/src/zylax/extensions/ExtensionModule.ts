@@ -2,9 +2,9 @@ import Model from '../lib/Model';
 
 export type ExtensionModuleName = string;
 
-class ExtensionModule extends Model {
+class ExtensionModule extends Model<string> {
     constructor() {
-        super(null);
+        super('');
     }
 }
 
