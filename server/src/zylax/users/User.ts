@@ -1,25 +1,32 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
-import randomstring from 'randomstring';
 import ModelWithProps from '../lib/ModelWithProps';
 import UserController from './UserController';
 import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
 import { STATIC_DIR } from '../constants';
-import { Config } from '../lib';
 
-export interface UserProps {
+export interface SerializedUserProps {
+    id: number;
     name: string;
     permissions: {
         [key: string]: boolean;
     };
+    settings: {
+        [key: string]: any
+    },
+    isDefault: boolean
+}
+
+export interface UserProps extends SerializedUserProps {
     password: string;
 }
 
-export default class User extends ModelWithProps<UserProps> {
+export default class User extends ModelWithProps<UserProps, SerializedUserProps> {
     public static cnf = {
         controller: UserController,
         hiddenProps: ['password'],
+        dynamicProps: ['isDefault']
     };
 
     hasPermission(key: string) {
@@ -65,19 +72,11 @@ export default class User extends ModelWithProps<UserProps> {
         });
     }
 
-    generateRandomPassword() {
-        return (
-            randomstring.generate({ length: 1, charset: 'alphabetic', capitalization: 'uppercase' }) +
-            randomstring.generate({ length: 2, charset: 'alphabetic', capitalization: 'lowercase' }) +
-            randomstring.generate({ length: 5, charset: 'numeric' })
-        );
-    }
-
     verifyPasswordTimeSafe(password: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
             const hash = this.getProp('password');
+
             if (typeof hash !== 'string') {
-                this.updatePassword('Hlr88978');
                 return reject(`${this} has no password set.`);
             }
 
@@ -91,5 +90,9 @@ export default class User extends ModelWithProps<UserProps> {
                 return resolve(isEqual);
             });
         });
+    }
+
+    prop_isDefault() {
+        return this.getProp('username') === UserController.DEFAULT_USER_USERNAME;
     }
 }
