@@ -7,24 +7,18 @@ export interface ModelConfig {
 }
 
 abstract class Model<TId extends string | number> extends EventEmitter {
-    protected id: TId;
-    protected static cnf: ModelConfig;
-    
-    cnf(): ModelConfig {
-        // @ts-ignore
-        return this.constructor.cnf;
-    }
-
+    protected _id: TId;
+    protected _cnf: ModelConfig;
     logger: Logger;
 
     constructor(id: TId) {
         super();
-        this.id = id;
+        this._id = id;
         this.logger = logger.child({ label: this.toString() });
 
-        if (this.cnf()) {
-            if (typeof this.cnf().maxListeners === 'number') {
-                this.setMaxListeners(this.cnf().maxListeners);
+        if (this._cnf) {
+            if (typeof this._cnf.maxListeners === 'number') {
+                this.setMaxListeners(this._cnf.maxListeners);
             }
         }
     }
@@ -34,7 +28,7 @@ abstract class Model<TId extends string | number> extends EventEmitter {
      */
     toString(): string {
         const type = this.constructor.name;
-        const id = this.id;
+        const id = this.getId();
 
         return id ? `[${type} ${id}]` : `[${type}]`;
     }
@@ -43,11 +37,11 @@ abstract class Model<TId extends string | number> extends EventEmitter {
      * Convert the model to JSON.
      */
     toJSON(): any {
-        return { id: this.id };
+        return { id: this.getId() };
     }
 
     getId() {
-        return this.id;
+        return this._id;
     }
 }
 

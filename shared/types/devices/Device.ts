@@ -1,15 +1,16 @@
 import type { DeviceStateDisplay } from './DeviceState';
 
 export interface DeviceProps {
+    id: number;
     name: string;
     icon: string;
     color: string;
     driver: {
-        type: string;
+        type: string | null;
         options: Record<string, any>
     };
-    connection: {
-        type: string;
+    connector: {
+        type: string | null;
         options: Record<string, any>
     },
     options: {
@@ -23,7 +24,10 @@ export interface DeviceProps {
 }
 
 export interface DevicePropsSerialized extends DeviceProps {
-    id: number;
+    connection: {
+        exists: boolean,
+        isOpen: boolean
+    },
     state: {
         isActive: boolean,
         display: DeviceStateDisplay

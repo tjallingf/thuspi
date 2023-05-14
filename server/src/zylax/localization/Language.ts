@@ -1,22 +1,25 @@
-import Model from '../lib/Model';
-import ModelWithProps from '../lib/ModelWithProps';
+import ModelWithProps, { ModelWithPropsConfig } from '../lib/ModelWithProps';
 import LanguageController from './LanguageController';
 import { LanguageKey, MessagesMap } from './LanguageMessages/LanguageMessages';
 import _ from 'lodash';
 
 export interface LanguageProps {
+    id: LanguageKey,
     messages: MessagesMap;
 }
 
-export interface LanguagePropsSerialized {
-    messages: {
-        [key: string]: string
-    }
+export interface LanguagePropsSerialized extends LanguageProps {
+    messages: Record<string, string>
 }
 
-export default class Language extends ModelWithProps<LanguageProps, LanguagePropsSerialized, LanguageKey> {
-    public static cnf = {
-        controller: LanguageController,
+export default class Language extends ModelWithProps<LanguageProps, LanguagePropsSerialized> {
+    _getConfig(): ModelWithPropsConfig<LanguageProps, LanguagePropsSerialized> {
+        return {
+            controller: LanguageController,
+            defaults: {
+                messages: {}
+            }
+        }
     };
 
     constructor(key: LanguageKey) {
@@ -26,7 +29,7 @@ export default class Language extends ModelWithProps<LanguageProps, LanguageProp
     }
 
     addMessages(messages: MessagesMap, prefix: string): void {
-        let prefixedMessages = {};
+        let prefixedMessages: Record<string, any> = {};
 
         _.forOwn(messages, (message, id) => {
             prefixedMessages[prefix ? `${prefix}.${id}` : id] = message;

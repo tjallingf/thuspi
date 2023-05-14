@@ -78,7 +78,7 @@ class Extension extends Model<string> {
         typeClass: Constructor<ExtensionModule>,
     ) {
         this.modules[typeClass.name] = this.modules[typeClass.name] || {};
-        const moduleSlug = `${this.id}.${moduleName}`;
+        const moduleSlug = `${this._id}.${moduleName}`;
 
         // If a module of this type and with this slug already exists, log an error.
         if (this.modules[typeClass.name][moduleName]?.prototype instanceof ExtensionModule) {
@@ -102,7 +102,7 @@ class Extension extends Model<string> {
 
         if (module?.prototype instanceof ExtensionModule) return module;
 
-        throw new ExtensionModuleNotRegisteredError(`${type.name} '${this.id}.${name}' is not registered.`);
+        throw new ExtensionModuleNotRegisteredError(`${type.name} '${this._id}.${name}' is not registered.`);
     }
 
     /**
@@ -184,10 +184,7 @@ class Extension extends Model<string> {
     static parseModuleSlug(moduleSlug: string) {
         const split = moduleSlug.split('.');
 
-        return {
-            extensionId: split[0],
-            moduleName: split.slice(1).join('.'),
-        };
+        return [ split[0], split.slice(1).join('.') ];
     }
 }
 

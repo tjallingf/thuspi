@@ -9,7 +9,7 @@ const AVAILABLE_LANGUAGES: LanguageKey[] = ['nl-nl', 'en-us'];
 
 export default class LanguageController extends Controller<Language>() {
     static load() {
-        let languages = {};
+        let languages: Record<string, Language> = {};
 
         AVAILABLE_LANGUAGES.forEach((key) => {
             const language = new Language(key);
@@ -18,7 +18,7 @@ export default class LanguageController extends Controller<Language>() {
                 const messages = extension.getModuleOrFail(LanguageMessages, key);
                 if (!messages) return true;
 
-                language.addMessages(messages.map, extension.id);
+                language.addMessages(messages.map, extension.getId());
             });
 
             languages[key] = language;

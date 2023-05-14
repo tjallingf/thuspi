@@ -31,7 +31,7 @@ export default class RecordManager {
 
     constructor(device: Device) {
         this.device = device;
-        this.dir = path.join(STORAGE_DIR, 'devices', this.device.id.toString(), 'records');
+        this.dir = path.join(STORAGE_DIR, 'devices', this.device.getId().toString(), 'records');
 
         this.loadConfig().then((config) => {
             this.config = config;

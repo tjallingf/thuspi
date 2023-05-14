@@ -17,14 +17,14 @@ export default class ExtensionController extends Controller<Extension>() {
         return new Promise<void>(async (resolve, reject) => {
             const manifestFilepaths = globSync('*/package.json', { cwd: EXTENSIONS_DIR, absolute: true });
 
-            let data = {};
+            let data: Record<string, Extension> = {};
 
             for (const filepath of manifestFilepaths) {
                 const manifest = await Manifest.fromFile(filepath);
 
                 const extension = new Extension(manifest, path.dirname(filepath));
 
-                data[extension.id] = extension;
+                data[extension.getId()] = extension;
             }
 
             // Store the extensions.
@@ -51,14 +51,14 @@ export default class ExtensionController extends Controller<Extension>() {
         throw new ExtensionNotInstalledError(name);
     }
 
-    static findAllModulesOfType<T extends Constructor<ExtensionModule>>(typeClass: T): { [moduleSlug: string]: T } {
-        let foundModules = {};
+    static findAllModulesOfType<T extends Constructor<ExtensionModule>>(typeClass: T) {
+        let foundModules: Record<string, T> = {};
 
         this.index().forEach((extension) => {
             if (!extension.modules || !extension.modules[typeClass.name]) return true;
 
             Object.entries(extension.modules[typeClass.name]).forEach(([name, module]) => {
-                const moduleSlug = `${extension.id}.${name}`;
+                const moduleSlug = `${extension.getId()}.${name}`;
                 foundModules[moduleSlug] = module;
             });
         });
@@ -66,22 +66,16 @@ export default class ExtensionController extends Controller<Extension>() {
         return foundModules;
     }
 
-    static findModule<T extends Constructor<ExtensionModule>>(
-        moduleType: T,
-        moduleSlug: string,
-        method: string = 'getModule',
-    ): T {
-        if (!moduleSlug.includes('.'))
-            throw new Error(`Module id must contain a period (like 'extensionId.moduleName'): '${moduleSlug}'.`);
-
-        const [extensionId, moduleName] = moduleSlug.split('.');
+    static findModule<T extends Constructor<ExtensionModule>>(moduleType: T, moduleSlug: string) {
+        const [ extensionId, moduleName ] = Extension.parseModuleSlug(moduleSlug);
         const ext = this.find(extensionId);
-
-        return ext[method]<T>(moduleType, moduleName);
+        return ext.getModule(moduleType, moduleName);
     }
 
-    static findModuleOrFail<T extends Constructor<ExtensionModule>>(moduleType: T, moduleSlug: string): T {
-        return this.findModule(moduleType, moduleSlug, 'getModuleOrFail');
+    static findModuleOrFail<T extends Constructor<ExtensionModule>>(moduleType: T, moduleSlug: string) {
+        const [ extensionId, moduleName ] = Extension.parseModuleSlug(moduleSlug);
+        const ext = this.find(extensionId);
+        return ext.getModuleOrFail(moduleType, moduleName);
     }
 
     // /**

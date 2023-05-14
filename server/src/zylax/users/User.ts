@@ -1,33 +1,33 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
-import ModelWithProps from '../lib/ModelWithProps';
+import ModelWithProps, { ModelWithPropsConfig } from '../lib/ModelWithProps';
 import UserController from './UserController';
 import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
 import { STATIC_DIR } from '../constants';
 
-export interface SerializedUserProps {
+export interface UserProps {
     id: number;
     name: string;
-    permissions: {
-        [key: string]: boolean;
-    };
-    settings: {
-        [key: string]: any
-    },
-    isDefault: boolean
+    permissions: Record<string, boolean>;
+    settings: Record<string, any>,
+    password: string | null;
 }
 
-export interface UserProps extends SerializedUserProps {
-    password: string;
-}
+export interface SerializedUserProps extends UserProps {}
 
 export default class User extends ModelWithProps<UserProps, SerializedUserProps> {
-    public static cnf = {
-        controller: UserController,
-        hiddenProps: ['password'],
-        dynamicProps: ['isDefault']
-    };
+    _getConfig(): ModelWithPropsConfig<UserProps, SerializedUserProps> {
+        return {
+            controller: UserController,
+            defaults: {
+                name: 'UNNAMED',
+                permissions: {},
+                settings: {},
+                password: null
+            }
+        }
+    }
 
     hasPermission(key: string) {
         const permissions = this.getProp('permissions');
@@ -51,7 +51,7 @@ export default class User extends ModelWithProps<UserProps, SerializedUserProps>
     }
 
     getPicturePath() {
-        const filepath = path.join(STATIC_DIR, 'users', 'pictures', this.id + '.jpg');
+        const filepath = path.join(STATIC_DIR, 'users', 'pictures', this._id + '.jpg');
         if (!fs.existsSync(filepath)) return null;
 
         return filepath;
@@ -90,9 +90,5 @@ export default class User extends ModelWithProps<UserProps, SerializedUserProps>
                 return resolve(isEqual);
             });
         });
-    }
-
-    prop_isDefault() {
-        return this.getProp('username') === UserController.DEFAULT_USER_USERNAME;
     }
 }

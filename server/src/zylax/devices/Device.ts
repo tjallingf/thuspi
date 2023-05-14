@@ -1,4 +1,3 @@
-import DeviceConnectionConfig from './DeviceConnectionConfig';
 import DeviceConnector from './DeviceConnector/DeviceConnector';
 import DeviceDriver from './DeviceDriver/DeviceDriver';
 import ExtensionController from '../extensions/ExtensionController';
@@ -9,29 +8,56 @@ import Manifest from '../utils/Manifest';
 import RecordManager from '../records/RecordManager';
 import _ from 'lodash';
 import type { DeviceProps, DevicePropsSerialized } from '~shared/types/devices/Device';
+import type { ModelWithPropsConfig } from '../lib/ModelWithProps';
 
-export default class Device extends ModelWithProps<DeviceProps, DevicePropsSerialized, number> {
-    static cnf = {
-        dynamicProps: ['state', 'connection'],
-        hiddenProps: ['driver'],
-        controller: DeviceController,
-        propsDefaults: {
-            driver: {
-                options: {},
+export default class Device extends ModelWithProps<DeviceProps, DevicePropsSerialized> {
+    _getConfig(): ModelWithPropsConfig<DeviceProps, DevicePropsSerialized> {
+        return {
+            controller: DeviceController,
+            filterProps: {
+                name: false
             },
-            connection: {
-                options: {},
-            },
-            options: {
-                recording: {
-                    enabled: false,
-                    cooldown: 0,
-                    flushThreshold: 5,
+            dynamicProps: {
+                connection: () => {
+                    return {
+                        exists: true,
+                        isOpen: true
+                    }
                 },
+                state: () => {
+                    if(this.driver) {
+                        return this.driver.getState().toJSON();
+                    }
+                    
+                    return {
+                        isActive: false,
+                        display: {}
+                    }
+                }
             },
-            metadata: {},
-        },
-    };
+            defaults: {
+                name: 'test',
+                icon: 'test',
+                color: 'red',
+                driver: {
+                    type: null,
+                    options: {}
+                },
+                connector: {
+                    type: null,
+                    options: {}
+                },
+                options: {
+                    recording: {
+                        enabled: false,
+                        cooldown: 5,
+                        flushThreshold: 5
+                    }
+                },
+                metadata: {}
+            }
+        }
+    }
 
     private _driver: DeviceDriver | void;
     get driver() {
@@ -62,7 +88,7 @@ export default class Device extends ModelWithProps<DeviceProps, DevicePropsSeria
                 return;
             }
 
-            this.initConnection();
+            this.initConnector();
         } catch (err: any) {
             this.logger.error(err);
         }
@@ -158,28 +184,25 @@ export default class Device extends ModelWithProps<DeviceProps, DevicePropsSeria
     /**
      * Initializethe connection.
      */
-    protected initConnection(): void {
+    protected initConnector(): boolean {
         if (!this._driver) {
             throw new Error('Cannot initialize connection when no driver is initialized.');
         }
 
-        let connConfig = new DeviceConnectionConfig(this.getProp('connection'));
+        let connConfig = this.getProp('connector');
 
         // Invoke the driver's modifyConnectionConfig() to edit the connection config.
         this.logger.debug('Calling device driver to edit the connection configuration.');
-        const editedConnConfig = this._driver.modifyConnectionConfig(connConfig);
+        const editedConnConfig = this._driver.modifyConnectorConfig(connConfig);
 
-        // Only update the connection config if a new config was returned.
-        if (editedConnConfig instanceof DeviceConnectionConfig) connConfig = editedConnConfig;
-
-        if (!connConfig.isSet()) {
-            this.logger.notice('No connection config supplied, not initializing a connection.');
-            return;
+        if (typeof editedConnConfig?.type != 'string') {
+            this.logger.notice('No connector configured.');
+            return false;
         }
 
-        const ConnectionModule = ExtensionController.findModule(DeviceConnector, connConfig.getType()!);
+        const ConnectionModule = ExtensionController.findModule(DeviceConnector, editedConnConfig.type);
 
-        const connection = new ConnectionModule(this, connConfig);
+        const connection = new ConnectionModule(this, editedConnConfig);
 
         connection.on('create', () => {
             this.logger.debug('Connection created.');
@@ -207,6 +230,8 @@ export default class Device extends ModelWithProps<DeviceProps, DevicePropsSeria
 
         connection.connect();
 
+        return true;
+
         // connector.invoke('connect', [ connConfig ]).then(connection: DeviceConnection => {
         //     this._connection = connection;
 
@@ -221,21 +246,13 @@ export default class Device extends ModelWithProps<DeviceProps, DevicePropsSeria
         // });
     }
 
-    prop_state() {
-        return this.driver ? this.driver.getState().toJSON() : null;
-    }
-
-    prop_connection() {
-        return this._connection && this._connection.toJSON();
-    }
-
     /**
      * Sends an update to the web client.
      */
     emitClientUpdate() {
         (async () => {
             WebSocket.emit('devices:change', {
-                device: await this.addAllDynamicProps(this.getProps()),
+                device: await this.addDynamicProps(this.getProps()),
             });
         })();
     }
