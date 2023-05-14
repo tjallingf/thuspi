@@ -1,14 +1,14 @@
 import { router, publicProcedure } from '../trpc';
 import User from '../../zylax/users/User';
 import { z } from 'zod';
-import { GetSerializedProps } from '../../types';
+import { GetTPropsSerialized } from '../../zylax/types';
 
 export const userRouter = router({
     get: publicProcedure
         .input(z.object({
             id: z.union([ z.number(), z.literal('me') ])
         }))
-        .query(async ({ ctx, input }): Promise<GetSerializedProps<User>> => {
+        .query(async ({ ctx, input }): Promise<GetTPropsSerialized<User>> => {
             let userId: number;
             
             if(input.id === 'me') {

@@ -1,4 +1,4 @@
-import DeviceConnectionConfig, { IDeviceConnectionConfig } from './DeviceConnectionConfig';
+import DeviceConnectionConfig from './DeviceConnectionConfig';
 import DeviceConnector from './DeviceConnector/DeviceConnector';
 import DeviceDriver from './DeviceDriver/DeviceDriver';
 import ExtensionController from '../extensions/ExtensionController';
@@ -8,46 +8,9 @@ import DeviceController from './DeviceController';
 import Manifest from '../utils/Manifest';
 import RecordManager from '../records/RecordManager';
 import _ from 'lodash';
-import { DeviceStateDisplay } from './DeviceState';
+import type { DeviceProps, DevicePropsSerialized } from '~shared/types/devices/Device';
 
-export interface DeviceProps {
-    id: number;
-    name: string;
-    icon: string;
-    color: string;
-    driver: {
-        type: string;
-        options: {
-            [key: string]: any;
-        };
-    };
-    options: {
-        recording: {
-            enabled: boolean;
-            cooldown: number;
-            flushThreshold: number;
-        };
-    };
-    connection: IDeviceConnectionConfig;
-    metadata: {
-        [key: string]: any;
-    };
-}
-
-export interface SerializedDeviceConnection {
-    isCreated: boolean,
-    isOpen: boolean
-}
-
-export type SerializedDeviceProps = DeviceProps & {
-    connection: SerializedDeviceConnection,
-    state: {
-        isActive: boolean,
-        display: DeviceStateDisplay
-    }
-}
-
-export default class Device extends ModelWithProps<DeviceProps, SerializedDeviceProps, number> {
+export default class Device extends ModelWithProps<DeviceProps, DevicePropsSerialized, number> {
     static cnf = {
         dynamicProps: ['state', 'connection'],
         hiddenProps: ['driver'],
@@ -262,11 +225,8 @@ export default class Device extends ModelWithProps<DeviceProps, SerializedDevice
         return this.driver ? this.driver.getState().toJSON() : null;
     }
 
-    prop_connection(): SerializedDeviceConnection {
-        return {
-            isCreated: this._connection instanceof DeviceConnector,
-            isOpen: !!(this._connection && this._connection.isOpen),
-        };
+    prop_connection() {
+        return this._connection && this._connection.toJSON();
     }
 
     /**

@@ -5,14 +5,13 @@ import 'chartjs-adapter-dayjs-4';
 
 export interface IChartProps {
     type: keyof ChartTypeRegistry;
-    canvasRef?: React.MutableRefObject<any>;
+    canvasRef: React.RefObject<HTMLCanvasElement>;
     data: ChartData;
     options: ChartOptions;
 }
 
 const Chart: React.FunctionComponent<IChartProps> = ({ type, data, options, canvasRef, ...rest }) => {
-    canvasRef = canvasRef || useRef(null);
-    const chartRef = useRef(null);
+    const chartRef = useRef<ChartJS | null>(null);
 
     function renderChart() {
         if (!canvasRef.current) return;

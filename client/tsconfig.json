@@ -1,27 +1,31 @@
 {
+    "include": ["src/"],
     "compilerOptions": {
+        "moduleResolution": "node",
+        "module": "es2022",
+        "esModuleInterop": true,
+        "strict": true,
+        "noImplicitReturns": false,
+        "strictPropertyInitialization": false,
+        "allowSyntheticDefaultImports": true,
         "types": ["vite/client"],
-        "target": "ESNext",
+        "target": "es2020",
         "useDefineForClassFields": true,
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "allowJs": false,
         "skipLibCheck": true,
-        "esModuleInterop": false,
-        "allowSyntheticDefaultImports": true,
-        "noImplicitAny": false,
         "forceConsistentCasingInFileNames": true,
-        "module": "ESNext",
-        "moduleResolution": "Node",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        "baseUrl": ".",
+        "baseUrl": "./",
+        "rootDir": "../",
         "paths": {
             "@/*": ["./src/*"],
-            "@server/*": ["../server/src/zylax/*"]
+            "~shared/*": ["./../shared/*"],
+            "~trpc": ["./src/utils/trpc"]
         }
     },
-    "include": ["src"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

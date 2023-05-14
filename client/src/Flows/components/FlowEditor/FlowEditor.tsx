@@ -19,12 +19,12 @@ export interface IFlowEditorProps {
     blockCategories: Array<{
         extensionId: string;
         id: string;
-        manifest: FlowBlockCategoryManifest;
+        manifest: any;
     }>;
 }
 const FlowEditor: React.FunctionComponent<IFlowEditorProps> = memo(({ flowId, blocks, blockCategories }) => {
     const { formatMessage } = useIntl();
-    const blocklyWorkspaceRef = useRef<Blockly.WorkspaceSvg>(null);
+    const blocklyWorkspaceRef = useRef<Blockly.Workspace | null>(null);
     const blocklySerializerRef = useRef(new Blockly.serialization.blocks.BlockSerializer());
     const [toolbox, setToolbox] = useState(null);
     const flowEditorBlocks = useRef<FlowEditorBlock[]>([]);
@@ -41,7 +41,7 @@ const FlowEditor: React.FunctionComponent<IFlowEditorProps> = memo(({ flowId, bl
         loadAutoSavedWorkspace();
     }
 
-    function handleChange(e) {
+    function handleChange(e: any) {
         if (['move', 'delete', 'change'].includes(e.type)) {
             autoSaveWorkspace();
         }
@@ -65,12 +65,16 @@ const FlowEditor: React.FunctionComponent<IFlowEditorProps> = memo(({ flowId, bl
     }
 
     function loadAutoSavedWorkspace() {
+        if(!blocklyWorkspaceRef.current) return;
+
         try {
             const serializedState = localStorage.getItem(LOCAL_STORAGE_AUTOSAVE_KEY);
-            if (serializedState.length) {
+            if (serializedState?.length) {
                 blocklySerializerRef.current.load(JSON.parse(serializedState), blocklyWorkspaceRef.current);
             }
-        } catch (err) {}
+        } catch (err) {
+            console.error('Failed to load workspace from localStorage:', err);
+        }
     }
 
     function registerBlocks() {
@@ -93,9 +97,9 @@ const FlowEditor: React.FunctionComponent<IFlowEditorProps> = memo(({ flowId, bl
         });
     }
 
-    function createToolbox() {
+    function createToolbox(): any {
         // Build the toolbox
-        const toolboxCategories = [];
+        const toolboxCategories: any[] = [];
         console.log({ blockCategories });
         blockCategories.forEach((category) => {
             const containsBlocks = flowEditorBlocks.current.filter((b) => b.manifest.category === category.id);
@@ -123,8 +127,7 @@ const FlowEditor: React.FunctionComponent<IFlowEditorProps> = memo(({ flowId, bl
         setToolbox(createToolbox());
     }, []);
 
-    console.log({ toolbox });
-    if (!toolbox) return;
+    if (!toolbox) return null;
 
     return (
         <BlocklyWorkspace

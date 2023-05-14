@@ -1,44 +1,34 @@
 import * as _ from 'lodash';
-
-export interface IDeviceConnectionConfigOptions {
-    [key: string]: any
-}
-
-export interface IDeviceConnectionConfig {
-    type: string,
-    options: IDeviceConnectionConfigOptions
-}
+import type { DeviceConnectionConfigData } from '~shared/types/devices/DeviceConnection';
 
 export default class DeviceConnectionConfig {
-    private type?: string;
-    private options?: IDeviceConnectionConfigOptions
+    private data: DeviceConnectionConfigData;
 
-    constructor(config: IDeviceConnectionConfig) {
-        this.type    = config?.type;
-        this.options = config?.options;
+    constructor(config: DeviceConnectionConfigData) {
+        this.data = config;
     }
 
     isSet() {
-        return (typeof this.type === 'string');
+        return (typeof this.data.type === 'string');
     }
 
     hasOptions() {
-        return _.isPlainObject(this.options);
+        return _.isPlainObject(this.data.options);
     }
 
-    getOptions<T>(): T {
+    getOptions<T>(): T | null {
         if(!this.hasOptions()) return null;
-        return this.options as T;
+        return this.data.options as T;
     }
 
     hasOption(keypath: string) {
-        const value = _.get(this.options, keypath);
+        const value = _.get(this.data.options, keypath);
         return (value !== null && typeof value != 'undefined');
     }
 
     getOption(keypath: string) {
         if(!this.hasOption(keypath)) return null;
-        return _.get(this.options, keypath);
+        return _.get(this.data.options, keypath);
     }
 
     /**
@@ -47,7 +37,7 @@ export default class DeviceConnectionConfig {
      * @param value - The value to set the option to.
      */
     setOption(keypath: string, value: any): this {
-        _.set(this.options, keypath, value);
+        _.set(this.data.options, keypath, value);
         return this;
     }
 
@@ -56,19 +46,19 @@ export default class DeviceConnectionConfig {
      * @returns The connection type.
      */
     getType() {
-        if(typeof this.type !== 'string') return null;
-        return this.type;
+        if(typeof this.data.type !== 'string') return null;
+        return this.data.type;
     }
 
     /**
      * Get the value of the 'type' field.
      */
     setType(type: string): this {
-        this.type = type;
+        this.data.type = type;
         return this;
     }
 
     toJSON() {
-        return { type: this.type, options: this.options };
+        return { type: this.data.type, options: this.data.options };
     }
 }

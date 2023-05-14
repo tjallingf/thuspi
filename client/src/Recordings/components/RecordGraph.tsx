@@ -10,8 +10,9 @@ export interface IRecordGraphProps {
     to: Date;
 }
 
+// TODO: convert to tRPC
 const RecordGraph: React.FunctionComponent<IRecordGraphProps> = ({ deviceId, preview = false, from, to }) => {
-    const canvasRef = useRef(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const records = useQuery<any>(
         `devices/${deviceId}/records`,
         {},
@@ -29,29 +30,29 @@ const RecordGraph: React.FunctionComponent<IRecordGraphProps> = ({ deviceId, pre
         const ctx = canvasRef.current.getContext('2d');
 
         let datasetsObj = {};
-        records.result.forEach((record, i) => {
-            Object.entries(record.v).forEach(([fieldAlias, value]) => {
-                if (typeof datasetsObj[fieldAlias] === 'undefined') {
-                    var gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                    gradient.addColorStop(0, 'rgba(250,174,50,0.2)');
-                    gradient.addColorStop(1, 'rgba(250,174,50,0)');
+        // records.result.forEach((record, i) => {
+        //     Object.entries(record.v).forEach(([fieldAlias, value]) => {
+        //         if (typeof datasetsObj[fieldAlias] === 'undefined') {
+        //             var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        //             gradient.addColorStop(0, 'rgba(250,174,50,0.2)');
+        //             gradient.addColorStop(1, 'rgba(250,174,50,0)');
 
-                    datasetsObj[fieldAlias] = {
-                        data: [],
-                        label: fieldAlias,
-                        fill: true,
-                        backgroundColor: gradient,
-                        borderWidth: 1,
-                        borderColor: 'red',
-                    };
-                }
+        //             datasetsObj[fieldAlias] = {
+        //                 data: [],
+        //                 label: fieldAlias,
+        //                 fill: true,
+        //                 backgroundColor: gradient,
+        //                 borderWidth: 1,
+        //                 borderColor: 'red',
+        //             };
+        //         }
 
-                datasetsObj[fieldAlias].data[i] = {
-                    x: record.d,
-                    y: value,
-                };
-            });
-        });
+        //         datasetsObj[fieldAlias].data[i] = {
+        //             x: record.d,
+        //             y: value,
+        //         };
+        //     });
+        // });
 
         return Object.values(datasetsObj);
     }, [records.result]);

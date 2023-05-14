@@ -1,5 +1,6 @@
-import DeviceConnectionConfig from '../DeviceConnectionConfig';
+import type { DeviceConnectionConfig } from '~shared/types/devices/DeviceConnection';
 import ExtensionModule from '../../extensions/ExtensionModule';
+import type { DeviceConnectorSerialized } from '~shared/types/devices/DeviceConnector';
 import Device from '../Device';
 
 export default class DeviceConnector extends ExtensionModule {
@@ -102,5 +103,11 @@ export default class DeviceConnector extends ExtensionModule {
         }
 
         return true;
+    }
+
+    toJSON(): DeviceConnectorSerialized {
+        return {
+            isOpen: !!this.isOpen,
+        };
     }
 }

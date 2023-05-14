@@ -1,6 +1,5 @@
 import useAuth from '@/hooks/useAuth';
-import useQuery from '@/hooks/useQuery';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '~trpc';
 import { IntlProvider } from 'react-intl';
 
 export interface ILanguageProviderProps {
@@ -14,15 +13,8 @@ const LanguageProvider: React.FunctionComponent<ILanguageProviderProps> = ({ chi
 
     if (language.isLoading) return <span>Loading language...</span>;
 
-    const handleError = (err) => {
-        if (err.message.includes('The intl string context variable') && err.descriptor.id.includes('flows.blocks')) {
-            const paramId = /context variable "([\w. -]+)" was not/.test(err)[2];
-            console.log(paramId);
-        }
-    };
-
     return (
-        <IntlProvider locale={languageKey} messages={language.data.messages}>
+        <IntlProvider locale={languageKey} messages={language.data!.messages}>
             {children}
         </IntlProvider>
     );

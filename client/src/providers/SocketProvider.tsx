@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import useQuery from '@/hooks/useQuery';
-import SocketContext, { ISocketContext } from '@/contexts/SocketContext';
+import SocketContext, { SocketContextType } from '@/contexts/SocketContext';
 import { io } from 'socket.io-client';
 import UserModel from '@/utils/models/User';
 
@@ -9,14 +9,14 @@ export interface ISocketProviderProps {
 }
 
 const SocketProvider: React.FunctionComponent<ISocketProviderProps> = ({ children }) => {
-    const [value, setValue] = useState(null);
+    const [value, setValue] = useState<SocketContextType>(null);
 
     useEffect(() => {
         const socket = io();
         setValue(socket);
     }, []);
 
-    if (!value) return;
+    if (!value) return null;
 
     return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
 };

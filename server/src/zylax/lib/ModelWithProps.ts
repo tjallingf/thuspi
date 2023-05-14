@@ -2,7 +2,6 @@ import Model, { ModelConfig } from '../lib/Model';
 import { logger } from './Logger';
 import { PromiseAllObject } from '../utils/Promise';
 import * as _ from 'lodash';
-import Controller from './Controller';
 
 interface ModelWithPropsConfig<TProps extends Object = Object> extends ModelConfig {
     dynamicProps?: string[];
@@ -13,7 +12,7 @@ interface ModelWithPropsConfig<TProps extends Object = Object> extends ModelConf
 
 abstract class ModelWithProps<
     TProps extends Object = Object, 
-    TSerializedProps extends Object = TProps,
+    TPropsSerialized extends Object = TProps,
     TId extends string | number = number
 > extends Model<TId> {
     static cnf: ModelWithPropsConfig;
@@ -117,7 +116,7 @@ abstract class ModelWithProps<
     }
 
     async serialize() {
-        return await this.addAllDynamicProps(this.getProps(false)) as unknown as TSerializedProps;
+        return await this.addAllDynamicProps(this.getProps(false)) as unknown as TPropsSerialized;
     }
 }
 

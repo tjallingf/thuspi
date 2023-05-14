@@ -1,1 +1,1 @@
-export { default as colors } from '../utils/colors';
+export { default as colors } from '../../../../shared/types/utils/colors';

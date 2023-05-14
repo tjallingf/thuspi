@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useQuery from '@/hooks/useQuery';
 import AuthContext, { IAuthContext } from '@/contexts/AuthContext';
 import User from '@/utils/models/User';
-import { trpc } from '../utils/trpc';
+import { trpc } from '~trpc';
 
 export interface IAuthProviderProps {
     children?: React.ReactNode;

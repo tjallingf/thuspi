@@ -3,6 +3,7 @@ import useQuery from '@/hooks/useQuery';
 import { IDeviceProps } from '@/Devices/components/Device/Device';
 import RecordGraph from '../components/RecordGraph';
 
+// TODO: convert to tRPC
 const Recordings: React.FunctionComponent = () => {
     const { result: devices } = useQuery<IDeviceProps[]>('devices');
 

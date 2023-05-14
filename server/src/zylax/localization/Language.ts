@@ -8,13 +8,13 @@ export interface LanguageProps {
     messages: MessagesMap;
 }
 
-export interface SerializedLanguageProps {
+export interface LanguagePropsSerialized {
     messages: {
         [key: string]: string
     }
 }
 
-export default class Language extends ModelWithProps<LanguageProps, SerializedLanguageProps, LanguageKey> {
+export default class Language extends ModelWithProps<LanguageProps, LanguagePropsSerialized, LanguageKey> {
     public static cnf = {
         controller: LanguageController,
     };

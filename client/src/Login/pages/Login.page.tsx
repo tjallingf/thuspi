@@ -6,7 +6,7 @@ import fetchQuery from '@/utils/fetchQuery';
 import { FormattedMessage } from 'react-intl';
 import useAuth from '@/hooks/useAuth';
 import { useNavigate } from 'react-router';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '~trpc';
 
 const Login: FunctionComponent = () => {
     const [isLoading, setIsLoading] = useState(false);

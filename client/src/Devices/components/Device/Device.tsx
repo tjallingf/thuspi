@@ -8,13 +8,13 @@ import DeviceDisplayTile from '../DeviceDisplayTile';
 import DeviceDisplayButtons from '../DeviceDisplayButtons';
 import DeviceStateDisplayRecording from '../DeviceStateDisplayRecording';
 import useSocketEvent from '@/hooks/useSocketEvent';
-import { trpc } from '@/utils/trpc';
-import { type SerializedDeviceProps } from '@server/zylax/devices/Device';
+import { trpc } from '~trpc';
+import { type DevicePropsSerialized } from '~shared/types/devices/Device';
 
 const { textDark } = colors;
 
-const Device: React.FunctionComponent<SerializedDeviceProps> = (props) => {
-    const [updatedProps, setUpdatedProps] = useState<SerializedDeviceProps>(props);
+const Device: React.FunctionComponent<DevicePropsSerialized> = (props) => {
+    const [updatedProps, setUpdatedProps] = useState<DevicePropsSerialized>(props);
     const { id, state, color, name, icon, connection } = updatedProps;
     const { user } = useAuth();
     const isActive = state?.isActive;
@@ -48,7 +48,7 @@ const Device: React.FunctionComponent<SerializedDeviceProps> = (props) => {
         }
     }, []);
 
-    const error: { icon: string; message: string } = (() => {
+    const error: { icon: string; message: string } | null = (() => {
         if (!connection.isCreated) {
             return { icon: 'bolt-slash', message: 'No connection can be found' };
         }

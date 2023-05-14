@@ -1,6 +1,6 @@
 import { router, publicProcedure } from '../trpc';
 import Device from '../../zylax/devices/Device';
-import { type GetSerializedProps } from '../../types';
+import { type GetTPropsSerialized } from '../../zylax/types';
 import { FlowBlock } from '@/zylax/flows';
 import { ExtensionController } from '@/zylax/extensions';
 import { logger } from '@/zylax';
@@ -8,7 +8,7 @@ import { type FlowBlockManifest } from '@/zylax/flows';
 
 export const flowEditorRouter = router({
     listBlocks: publicProcedure
-        .query(async ({ ctx }): Promise<GetSerializedProps<Device>[]> => {
+        .query(async ({ ctx }): Promise<GetTPropsSerialized<Device>[]> => {
             const flowBlocks = ExtensionController.findAllModulesOfType(FlowBlock);
 
             const result: Array<{ type: string; manifest: FlowBlockManifest }> = [];

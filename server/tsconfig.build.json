@@ -4,11 +4,7 @@
         "storage/**/*.ts"
     ],
     "compilerOptions": {
-        "declaration": true,
-        "paths": {
-            "@/*": [
-                "./dist/*"
-            ]
-        }
+        "rootDir": "./src/",
+        "declaration": true
     }
 }

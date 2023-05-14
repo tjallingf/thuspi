@@ -1,9 +1,6 @@
 import { router, publicProcedure } from '../trpc';
 import { z } from 'zod';
-import Device from '../../zylax/devices/Device';
-import { type GetSerializedProps } from '../../types';
 import passport from 'passport';
-import Session from 'supertokens-node/recipe/session';
 import { UserController } from '@/zylax/users';
 import { TRPCError } from '@trpc/server';
 

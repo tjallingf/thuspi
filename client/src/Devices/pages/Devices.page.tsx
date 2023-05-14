@@ -3,7 +3,7 @@ import Masonry from '@/Masonry';
 import useQuery from '@/hooks/useQuery';
 import Device, { IDeviceProps } from '@/Devices/components/Device/Device';
 import ErrorBoundary from '@/ErrorBoundary';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '~trpc';
 
 const Devices: React.FunctionComponent = () => {
     const devices = trpc.device.list.useQuery();

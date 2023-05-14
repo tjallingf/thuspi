@@ -17,7 +17,7 @@ const FlowEdit: React.FunctionComponent = () => {
     return (
         <Page id="FlowEdit">
             <Suspense fallback={<span>Loading...</span>}>
-                <FlowEditor flowId={id} blocks={blocks.result} blockCategories={blockCategories.result} />
+                <FlowEditor flowId={id!} blocks={blocks.result} blockCategories={blockCategories.result} />
             </Suspense>
         </Page>
     );

@@ -12,22 +12,21 @@ import { resolveTypeClass } from './utils';
 const GLOB_PATTERN_MODULES = 'modules/**/*/index.js';
 const GLOB_PATTERN_ASSETS = ['assets/language/*.json'];
 
-export interface IExtensionModules {
+interface ExtensionModules {
     [key: string]: {
         [key: string]: any & Constructor<ExtensionModule>;
     };
 }
 
-export interface IExtensionLib {
+interface ExtensionLib {
     activate: () => void;
 }
 
-class Extension extends Model {
-    public declare id: string;
+class Extension extends Model<string> {
     public dir: string;
-    public modules: IExtensionModules = {};
+    public modules: ExtensionModules = {};
     public manifest: Manifest;
-    private lib: IExtensionLib;
+    private lib: ExtensionLib;
 
     private loadingModules: string[] = [];
 
@@ -112,7 +111,7 @@ class Extension extends Model {
      * @param name - The name of the module to find.
      * @returns The module.
      */
-    getModuleOrFail<T extends Constructor<ExtensionModule>>(type: T, name: ExtensionModuleName): T {
+    getModuleOrFail<T extends Constructor<ExtensionModule>>(type: T, name: ExtensionModuleName): T | null {
         if (!_.isPlainObject(this.modules[type.name])) return null;
 
         const module = this.modules[type.name][name];
@@ -144,7 +143,7 @@ class Extension extends Model {
             try {
                 const mainFilepath = this.getMainFilepath();
 
-                if (!fs.existsSync(mainFilepath)) {
+                if (!mainFilepath || !fs.existsSync(mainFilepath)) {
                     throw new Error(`Cannot find main file, looked for '${mainFilepath}'.`);
                 }
 

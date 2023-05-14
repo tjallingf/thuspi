@@ -1,6 +1,6 @@
 import { Icon, Tile, Box } from '@tjallingf/react-utils';
 import './DeviceDisplayTile.scss';
-import { type DeviceStateDisplay } from '@server/zylax/devices/DeviceState';
+import { type DeviceStateDisplay } from '~//zylax/devices/DeviceState';
 
 export interface IDeviceDisplayTileProps {
     onChange?(name: string, value: any): void;

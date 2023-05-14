@@ -1,12 +1,11 @@
-import type { Color } from '@/zylax/utils/colors';
 import { ExtensionModule } from '../../extensions';
-
-export interface FlowBlockCategoryManifest {
-    color: Color | number;
-}
+import { FlowBlockCategoryManifest } from '~shared/types/flows/FlowBlockCategory';
+import colors from '@/zylax/utils/colors';
 
 export default class FlowBlockCategory extends ExtensionModule {
     getManifest(): FlowBlockCategoryManifest {
-        return;
+        return {
+            color: colors.BLUE
+        };
     }
 }

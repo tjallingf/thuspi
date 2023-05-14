@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from '@/utils/queryClient';
 import LanguageProvider from '@/providers/LanguageProvider';
 import SocketProvider from '@/providers/SocketProvider';
-import { trpc, trpcClient } from './utils/trpc';
+import { trpc, trpcClient } from '~trpc';
 
 export interface IProvidersProps {
     children?: React.ReactNode;

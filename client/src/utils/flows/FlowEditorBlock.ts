@@ -1,39 +1,15 @@
 import fieldBlocks from './blockly/fieldBlocks';
 import { IntlShape } from 'react-intl';
-import { forOwn } from 'lodash';
-import { moveKeyToProperty } from '../array';
 import { getColorValue } from '../colors';
 import { colorpalettes } from '@tjallingf/react-utils';
+import type { FlowBlockManifestSerialized } from '~shared/types/flows/FlowBlock';
+import type { FlowBlockCategoryManifestSerialized } from '~shared/types/flows/FlowBlockCategory';
+import { forOwn } from 'lodash';
 
 export interface FlowEditorBlockOptions {
     messageFormatter: IntlShape['formatMessage'];
     onChange?: (event: string, data: any) => void;
-    category: FlowBlockCategoryManifest;
-}
-
-export interface FlowEditorBlockFormattedManifest {
-    category: string;
-    connections?: {
-        top?: boolean;
-        bottom?: boolean;
-    };
-    helpUrl?: string;
-    output?: {
-        type?: string;
-    };
-    parameters?: Array<{
-        blockly: any;
-        name: string;
-        type?: string;
-        options?: any[];
-        shadow?: {
-            type?: string;
-            value?: any;
-        };
-    }>;
-    statements?: Array<{
-        name: string;
-    }>;
+    category: FlowBlockCategoryManifestSerialized;
 }
 
 export default class FlowEditorBlock {
@@ -41,26 +17,19 @@ export default class FlowEditorBlock {
     extensionId: string;
     blockName: string;
     options: FlowEditorBlockOptions;
-    manifest: FlowEditorBlockFormattedManifest;
+    manifest: Required<FlowBlockManifestSerialized>;
 
-    constructor(type: string, manifest: any, options: FlowEditorBlockOptions) {
+    constructor(type: string, manifest: Required<FlowBlockManifestSerialized>, options: FlowEditorBlockOptions) {
         this.type = type;
-        this.manifest = this.formatManifest(manifest);
+        this.manifest = manifest;
         this.options = options;
 
         [this.extensionId, this.blockName] = type.split('.');
     }
 
-    formatManifest(unformatted: any): FlowEditorBlockFormattedManifest {
-        return {
-            ...unformatted,
-            parameters: moveKeyToProperty(unformatted.parameters || {}, 'name'),
-            statements: moveKeyToProperty(unformatted.statements || {}, 'name'),
-        };
-    }
-
     getBlocklyToolboxDef() {
-        let inputs = {};
+        let inputs: {[key: string]: any} = {};
+        
         this.manifest.parameters.forEach((param: any) => {
             // Dropdown fields can't have a shadow block
             if (param.options) return true;
@@ -89,9 +58,9 @@ export default class FlowEditorBlock {
         };
     }
 
-    getBlocklyParameterDefJSON(param: FlowEditorBlockFormattedManifest['parameters'][0]) {
+    getBlocklyParameterDefJSON(param: FlowBlockManifestSerialized['parameters'][number]) {
         if (param.options) {
-            const options = param.options.map((option) => this.#formatOptionLabel(option, param));
+            const options = param.options.map((option: any) => this.#formatOptionLabel(option, param));
 
             return {
                 name: param.name,
@@ -109,7 +78,7 @@ export default class FlowEditorBlock {
         };
     }
 
-    getShadow(param: FlowEditorBlockFormattedManifest['parameters'][0]) {
+    getShadow(param: FlowBlockManifestSerialized['parameters'][0]) {
         let shadowType = param.type;
 
         if (typeof param.shadow?.type === 'string' && (param.shadow.type === param.type || param.type === 'any')) {
@@ -148,11 +117,11 @@ export default class FlowEditorBlock {
         const originalThis = this;
 
         return {
-            init: function () {
+            init: function (this: any) {
                 this.jsonInit(jsonDef);
             },
 
-            onchange: function (e: any) {
+            onchange: function (this:any, e: any) {
                 if (this.isInFlyout) return;
                 if (this.id !== e.blockId) return;
 
@@ -191,7 +160,7 @@ export default class FlowEditorBlock {
     }
 
     getBlocklyBlockDefJSON() {
-        const def = {
+        const def: Record<string, any> = {
             type: this.type,
 
             previousStatement: this.manifest.connections?.top === false ? undefined : null,
@@ -232,7 +201,7 @@ export default class FlowEditorBlock {
         return def;
     }
 
-    #formatOptionLabel(option, param): [string, any] {
+    #formatOptionLabel(option: any, param: any): [string, any] {
         let { value, label, key } = option;
 
         // Force label and value to be a string
@@ -253,7 +222,7 @@ export default class FlowEditorBlock {
     #formatMessage(params: any[]) {
         let defaultMessage = params.map((_, i) => `%${i + 1}`).join(' ');
 
-        let values = {};
+        let values: Record<string, any> = {};
         params.forEach((param, i) => (values[param.name] = `%${i + 1}`));
 
         const formattedMessage = this.options.messageFormatter(

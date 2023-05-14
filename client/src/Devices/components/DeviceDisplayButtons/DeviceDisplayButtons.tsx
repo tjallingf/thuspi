@@ -1,6 +1,6 @@
 import React, { MouseEvent, useRef } from 'react';
 import { Box, Button, Icon, Tile, colorpalettes } from '@tjallingf/react-utils';
-import { type DeviceStateDisplay } from '@server/zylax/devices/DeviceState';
+import { type DeviceStateDisplay } from '~//zylax/devices/DeviceState';
 
 export interface IDeviceDisplayButtonsProps {
     onChange?(name: string, value: any): void;

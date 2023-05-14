@@ -1,24 +1,8 @@
 import ExtensionModule from '../../extensions/ExtensionModule';
 import DeviceState from '../DeviceState';
 import Device from '../Device';
-import type DeviceConnectionConfig from '../DeviceConnectionConfig';
-
-export type DeviceDriverManifestInputType = 'toggle' | 'color' | 'open' | 'close' | 'stop';
-export interface DeviceDriverManifest {
-    recording?: {
-        supported?: boolean;
-        fields?: Array<{
-            name: string;
-            type: string;
-            color?: string;
-            primary?: boolean;
-        }>;
-    };
-    inputs?: Array<{
-        name: string;
-        type: DeviceDriverManifestInputType;
-    }>;
-}
+import type { DeviceConnectionConfig } from '~shared/types/devices/DeviceConnection';
+import type { DeviceDriverManifest, DeviceDriverManifestInputType } from '~shared/types/devices/DeviceDriver';
 
 export default class DeviceDriver extends ExtensionModule {
     device: Device;

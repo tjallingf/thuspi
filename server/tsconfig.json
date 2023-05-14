@@ -1,10 +1,10 @@
 {
-    "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js"],
-    "ts-node": {
-        "transpileOnly": true
-    },
+    "include": ["src/", "../shared/types/utils/colors.ts"],
     "compilerOptions": {
         "types": [],
+        "typeRoots": [
+            "./node_modules/@types"
+        ],
         "moduleResolution": "node",
         "target": "es2020",
         "lib": ["es2020"],
@@ -17,10 +17,14 @@
         "strictPropertyInitialization": false,
         "allowSyntheticDefaultImports": true,
         "baseUrl": "./",
-        "rootDir": "./src",
+        "rootDir": "../",
         "paths": {
-            "@/*": ["./src/*"],
-            "#/zylax": ["./src/zylax/extension-api/index"]
+            "~shared/*": ["../shared/*"],
+            "~extapi": ["src/zylax/extension-api/index"],
+            "@/*": ["src/*"]
         }
+    },
+    "ts-node": {
+        "transpileOnly": true
     }
 }
