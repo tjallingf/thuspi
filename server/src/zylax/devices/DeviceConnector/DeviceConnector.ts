@@ -1,11 +1,10 @@
-import type { DeviceConnectionConfig } from '~shared/types/devices/DeviceConnection';
 import ExtensionModule from '../../extensions/ExtensionModule';
-import type { DeviceConnectorSerialized } from '~shared/types/devices/DeviceConnector';
 import Device from '../Device';
+import type { DeviceProps } from '~shared/types/devices/Device';
 
 export default class DeviceConnector extends ExtensionModule {
     protected idOptionKey = 'id';
-    protected config: DeviceConnectionConfig;
+    protected config: DeviceProps['connector'];
     protected receivedData: any[] = [];
     protected device: Device;
 
@@ -15,7 +14,7 @@ export default class DeviceConnector extends ExtensionModule {
         return this._isOpen;
     }
 
-    constructor(device: Device, config: DeviceConnectionConfig) {
+    constructor(device: Device, config: DeviceProps['connector']) {
         super();
 
         this.device = device;
@@ -103,11 +102,5 @@ export default class DeviceConnector extends ExtensionModule {
         }
 
         return true;
-    }
-
-    toJSON(): DeviceConnectorSerialized {
-        return {
-            isOpen: !!this.isOpen,
-        };
     }
 }

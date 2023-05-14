@@ -1,7 +1,7 @@
 import ExtensionModule from '../../extensions/ExtensionModule';
 import DeviceState from '../DeviceState';
 import Device from '../Device';
-import type { DeviceConnectionConfig } from '~shared/types/devices/DeviceConnection';
+import type { DeviceProps } from '~shared/types/devices/Device';
 import type { DeviceDriverManifest, DeviceDriverManifestInputType } from '~shared/types/devices/DeviceDriver';
 
 export default class DeviceDriver extends ExtensionModule {
@@ -46,10 +46,10 @@ export default class DeviceDriver extends ExtensionModule {
 
     /**
      *
-     * @param {DeviceConnectionConfig} current - The current connection config.
-     * @returns The modified connection config.
+     * @param current - The current connector config.
+     * @returns The modified connector config.
      */
-    modifyConnectionConfig(current: DeviceConnectionConfig): DeviceConnectionConfig {
+    modifyConnectorConfig(current: DeviceProps['connector']): DeviceProps['connector'] {
         return current;
     }
 
