@@ -36,7 +36,8 @@
         "sass": "^1.58.3",
         "socket.io-client": "^4.6.1",
         "superjson": "^1.12.3",
-        "terser": "^5.17.2"
+        "terser": "^5.17.2",
+        "vite-tsconfig-paths": "^4.2.0"
     },
     "devDependencies": {
         "@types/classnames": "^2.3.1",
