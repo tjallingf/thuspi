@@ -17,7 +17,6 @@ const AuthProvider: React.FunctionComponent<IAuthProviderProps> = ({ children })
 
         setValue({
             user: new User(user.data),
-            isLoggedIn: !user.data.isDefault,
             refresh: user.refetch
         })
     }, [ user.data ]);
